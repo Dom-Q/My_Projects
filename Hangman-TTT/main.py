@@ -1,9 +1,21 @@
 import turtle
 import random
+
+from functions import characterO
+from functions import characterX
+
+###########
+# Warning #
+###########
+
+# This was made in repl.it and for some reason the graphics may glitch in other IDEs 
+# (when i ran in Visual Studio the menu and tic tac toe marking were glitched). 
+# Suggest running in repl.it for proper results if glitches arise :)
+
 screen = turtle.Screen()
 tan = turtle.Turtle()
+screen.colormode(255)
 #makes menu border
-#dimensions may be off in some IDEs (was made on repl.it)
 tan.penup()
 tan.goto(-250,150)
 tan.setheading(0)
@@ -260,27 +272,8 @@ if gameSelect == 'Tic Tac Toe' or gameSelect == 'tic tac toe' or gameSelect == '
     tan.goto(185, -172)
     tan.write('9', font = ('ariel', 35, 'normal'))
     tan.color('black')
-    #function that creates the X.
-    def characterX():
-      tan.setheading(45)
-      tan.pendown()
-      tan.forward(60)
-      tan.setheading(225)
-      tan.forward(120)
-      tan.penup()
-      tan.setheading(90)
-      tan.penup()
-      tan.forward(85)
-      tan.setheading(315)
-      tan.pendown()
-      tan.forward(120)
-    #funtion that creates the O.
-    def characterO():
-      tan.pendown()
-      tan.circle(60)
 
-
-    playerName = input('Enter a Username')
+    playerName = input('Enter a Username: ')
     tan.penup()
     tan.goto(-125,280)
     tan.pendown()
@@ -435,7 +428,7 @@ if gameSelect == 'Tic Tac Toe' or gameSelect == 'tic tac toe' or gameSelect == '
               if listAll[i][0] == list2[j] or listAll[i][1] == list2[j] or listAll[i][2] == list2[j] :
                 win = win + 1
                 if win == 3 :
-                  print("You win! Thanks for playing.")
+                  print("You lost!")
                   cpu = 0
                   playagain = input('Would you like to play again? Answer Yes or No')
                   break
