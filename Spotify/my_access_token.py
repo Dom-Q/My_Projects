@@ -2,11 +2,18 @@ import requests
 import base64
 import datetime
 import inspect
+import my_IDs
 
-clientID = '955b24586bc2412ca9b14fef5d29ccec'
-clientSecret = 'a98ef98084654d0abf2b40a16ce16030'
+# This file retrieves the access token needed to make requests to the Spotify API.
+# DO NOT RUN THIS FILE. Only paste the code from the redirect uri into the "URL_code" variable
+
+# Substitute these with your own ID and Secret
+clientID = my_IDs.clientID
+clientSecret = my_IDs.clientSecret
 redirect_uri = 'http://127.0.0.1:5000/Spotify/Test'
 
+# Supposed to refresh my code once it expires using the refresh token but doesn't work for some reason.
+# The access token you receive will have to be manually refreshed after 1 hour
 def perform_Auth(refresh):
     next_endpoint = 'https://accounts.spotify.com/api/token'
     body = {
@@ -23,6 +30,7 @@ def perform_Auth(refresh):
 
     return requests.post(url=next_endpoint, headers=header, data=body)
 
+# Post request which returns json data including the access and refresh token
 def initial_Auth(url_code):
     next_endpoint = 'https://accounts.spotify.com/api/token'
     body = {
@@ -67,7 +75,8 @@ class User_info:
 
 # Uses code in url to obtain access token and refresh token from api
 if(inspect.isclass(User_info) == True):
-    url_code = 'AQBp3ruVxy8HKPH6UcoqTqFtqX-5tFrx3BFf2oQRSvyuo-fpAby4uzXldKsBR2cyDfFxuiHk_M2zB3hvHhBEBuiSN_K8muGZzCKDSKbPnHnIInlR1vgIg71dtEXhZxZrS7Zkdxn4SPmCILG9XNx7a1d72kmVRPP_p6LcDgvLpDJUIFx9zbzMtNUT7gpPJuQfVVMAUAjmBEv50KoTdtvdYrMZB_ghssHD8Mpspnwd_dQepKws3aG6xc-IgcahfWcruPQeP2G3SiA_v_a8liJNFUCyzoKU6QxzbpBfcBJABEmKibMuFqkL9Ts8WK7cv5ITGsFG1zKGHOmtwPFYza1nP03QRV6eAXm2_cKxOu8qtM-apJmVG4wwGs1aabgI07J3hnSc4m3N0ttW8WEMapioZgtvQwcfVjLt4xbjpB_mVL5uFuFo_KxZWfUK54s7c8srmg9BEieqaZGs6G-LPZLGF5V95Dvb2YKFatU5ltfl8V-dgyVoOW_lU2PgJ48smF61FW46uUUGZnM'
+    # Enter the code retrieved from redirect uri here
+    url_code = 'AQBkorWCl3bv71nC9G1LddL9ei-FaEtYAQWKlFTwaARBC4vH4NKbmRZZMSg11m5TS_mGcIzCU652J01nVaKfQiU0-zlKUZOBcFbBeaO6pXHD4mbb05qvcBu8o4kCujNobAKe1aGb1xDhE7_BFDa1hXpahsNVgzqwSVEifcMYvID7HMXXUh0-ROWhJNN06DJwJLCRxCdGDjZXPa2c0E4J2CqOirkoGhZAGFMt2kbeEwuFSRdYKvJYlL688xd-voEpkLgMyK5aMYZwnjVGCWV5Ow36dIt29lKX-WSDH_KuF7MoApUWo8vK4aYPikwsTNpl0_9WwgdY4Heo6i0tG6YM5q-pER27NfdmA56HlsEtX3D2Rtrii11o3IQxVXX1fePLR04pZsVL9K_-DGp2vcUH9JjGg7JmhtxwmVnA6sH0fvyhUsys8jdo8srQ6QuAyCrSrTxNmfU1EHqQgFF0uPKteWjQ_9nNzWLCeZPOX8Bizyg1AGehwGXKtHuYzKsyYYvp4kJg9oBSEcE'
     initial_data = initial_Auth(url_code)
     initial_json_data = initial_data.json()
     initial_access_token = initial_json_data["access_token"]

@@ -8,6 +8,7 @@ from sklearn import neighbors, preprocessing, tree
 from sklearn.tree import DecisionTreeClassifier
 import numpy
 
+# Used to return multiple values about the seeds used for one of the requests
 class Seed:
     num_genres = 0
     num_songs = 0
@@ -17,6 +18,7 @@ class Seed:
     def __init__(self):
         pass
 
+# Includes all data retrieved from Spotify API about the user's listening data
 class Spotify:
 
     #==================#
@@ -36,6 +38,8 @@ class Spotify:
     top_artists = []
     #List of track objects
     top_tracks = []
+    # Names of users top tracks
+    top_track_names = []
     #List of lists containing audio features for each song
     audio_features = []
     num_top_tracks = None
@@ -196,6 +200,8 @@ class Spotify:
             seed_obj.num_songs = seed_obj.num_songs + 1
         return seed_obj
 
+    # Gets songs from Spotify API
+    # The audio data from these songs will be used as input in the decision tree to determine if the user will like each one
     def get_recommendations(self):
         endpoint = 'https://api.spotify.com/v1/recommendations'
         header = {
@@ -281,20 +287,24 @@ class Spotify:
         prediction = Decision_Tree.predict(tester)
         return prediction
     
+    # If decision tree determines that the user likes the song, this function appends the songs uri to the list of 
+    # final songs which will be added to the playlist
     def get_hits(self, list_of_hits):
         self.Hit_object = self.Hit_data()
         i = 0
         self.Hit_object.indices = []
         self.Hit_object.valid_recs = []
         for rating in list_of_hits:
-            if rating == '1' and ((len(self.hit_uris) + len(self.Hit_object.valid_recs) + 1) <= 50):
+            # Add uri to final list if Decision Tree deemed song likeable, if there are less than 50 songs in the list,
+            # and if the song name isn't already in the list of user's top songs
+            if rating == '1' and ((len(self.hit_uris) + len(self.Hit_object.valid_recs) + 1) <= 50) and (self.recommended_songs[i]["name"] not in self.top_track_names):
                 self.Hit_object.valid_recs.append(self.recommended_songs[i]["uri"])
                 self.Hit_object.indices.append(i)
                 i = i + 1
             else:
                 i = i + 1
         return
-
+    # Adds the songs to the newly created user recommendation playlist
     def add_songs(self, playlist_ID, uri_list):
         url = 'https://api.spotify.com/v1/playlists/{}/tracks'.format(playlist_ID)
         header = {

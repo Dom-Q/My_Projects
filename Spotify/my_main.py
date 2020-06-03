@@ -1,4 +1,4 @@
-#import my_access_token
+import my_access_token
 from Spotify import Spotify
 from Artist import Artist
 from Track import Track
@@ -68,6 +68,9 @@ for song in list_of_tracks:
 
 Account_obj.top_tracks = list_of_tracks
 
+for one in Account_obj.top_tracks:
+    Account_obj.top_track_names.append(one.name)
+
 # Instantiate total number of top tracks
 Account_obj.num_top_tracks = Account_obj.count_top_tracks()
 if Account_obj.num_top_tracks < 25:
@@ -90,10 +93,11 @@ for each in Account_obj.audio_features:
 
 
 # Get song ratings from user
-#Account_obj.user_ratings = Account_obj.get_song_ratings()
+Account_obj.user_ratings = Account_obj.get_song_ratings()
 
 # ML and track searching
 tracklist_size = 0
+# Loops until 50 songs are in the playlist
 while(tracklist_size < 50):
     Account_obj.recommended_song_data = []
     Account_obj.recommended_songs = []
@@ -116,7 +120,8 @@ while(tracklist_size < 50):
     # Get song names using indices retrieved from ML algorithm
     for index in Account_obj.Hit_object.indices:
         Account_obj.final_playlist_song_names.append(Account_obj.recommended_songs[index]["name"])
-    
+
+# How many songs are in the list to be added to playlist. Should be 50 once complete.   
 print(len(Account_obj.hit_uris))
 
 # Add Songs to playlist
