@@ -12,10 +12,16 @@ from functions import characterX
 # (when i ran in Visual Studio the menu and tic tac toe marking were glitched). 
 # Suggest running in repl.it for proper results if glitches arise :)
 
+# Intantiate objects
 screen = turtle.Screen()
 tan = turtle.Turtle()
 screen.colormode(255)
-#makes menu border
+
+#----#
+#Menu#
+#----#
+
+# Makes menu border
 tan.penup()
 tan.goto(-250,150)
 tan.setheading(0)
@@ -26,7 +32,7 @@ for x in range (1,3):
   tan.right(90)
   tan.forward(300)
   tan.right(90)
-#creates content within the menu
+# Creates content within the menu
 tan.penup()
 tan.goto(-65,110)
 tan.write('Menu', font = ('ariel', 40, 'normal'))
@@ -39,8 +45,11 @@ tan.write('Hangman', font = ('ariel', 25, 'normal'))
 tan.goto(-75,15)
 tan.write('Tic Tac Toe', font = ('ariel', 25, 'normal'))
 gameSelect = input('Select the game you want to play!')
+#-------#
+#Hangman#
+#-------#
+# Hangman game
 if gameSelect == 'Hangman' or gameSelect == 'hangman'or gameSelect == 'HANGMAN':
-#Start of hangman game
   playAgain = 'yes'
   #loop that gives player option to continue playing or stop
   while playAgain == 'yes' or playAgain == 'Yes':
@@ -227,7 +236,9 @@ if gameSelect == 'Hangman' or gameSelect == 'hangman'or gameSelect == 'HANGMAN':
     playAgain = input('Would you like to play again? Yes or No.')
   print('Thanks for playing!')
 
-#Tic Tac Toe Game
+#----------------#
+#Tic Tac Toe Game#
+#----------------#
 if gameSelect == 'Tic Tac Toe' or gameSelect == 'tic tac toe' or gameSelect == 'Tic tac toe':
   playagain = 'Yes'
   while playagain == 'YES' or playagain == 'Yes' or playagain == 'yes':

@@ -2,7 +2,7 @@ import turtle
 
 tan = turtle.Turtle()
 
-#function that creates the X.
+# Function that creates the X.
 def characterX():
     tan.setheading(45)
     tan.pendown()
@@ -16,7 +16,7 @@ def characterX():
     tan.setheading(315)
     tan.pendown()
     tan.forward(120)
-#funtion that creates the O.
+# Funtion that creates the O.
 def characterO():
     tan.pendown()
     tan.circle(60)
