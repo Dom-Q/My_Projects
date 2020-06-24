@@ -83,130 +83,76 @@ int get_row(int size){
     return row;
 }
 
-int diagonal_route(char** matrix, int size, int width, int height){
-    srand(time(NULL));
-    int num_shifts = rand() % (width - 2);
-    int largest;
-    int remainder;
-    int num_in_diag;
-    int i = 0;
-    int j = 0;
-    int new_index = 0;
-    char* new_matrix = (char*)malloc(size*(sizeof(char)));
-    // First half of diagonals
-    // Loop through each diagonal index in each column
-    for(i = 1; i < width; i++){
-        largest = i * width;
-        if(i >= height){
-            num_in_diag = height;
-        }
-        else{
-            num_in_diag = i + 1;
-        }
-        for(j = i; j <= largest; j = j + (width - 1)){
-            new_index = (num_shifts % (i + 1))*(width - 1) + j;
-            // Check overflow
-            if(new_index > largest){
-                remainder = new_index - largest;
-                new_index = largest - (width - 1)*(num_in_diag -((remainder / (width - 1)) % num_in_diag));
-                new_matrix[new_index] = (*matrix)[j];
-            }
-            else{
-                new_matrix[new_index] = (*matrix)[j];
-            }
-        }        
+int find_quadrant(int index, int width, int height){
+    double width_split = width / 2.0;
+    double height_split = height / 2.0;
+    int row = floor(index / width);
+    int col = index % width;
+    if((col < width_split) && (row < height_split)){
+        return 1;
     }
-    // Second half of diagonals
-    int row = 1;
-    int first;
-    largest = 0;
-    new_index = 0;
-    num_in_diag = 0;
-    remainder = 0;
-    j = 0;
-    for(row = 1; row < height; row++){
-        first = ((row + 1)*(width) - 1);
-        // alg to find number of elements in diagonal for variable dimensioned matrix
-        if((width + row) <= height){
-            num_in_diag = width;
-        }
-        else{
-            num_in_diag = height - row;
-        }
-        largest = first + ((num_in_diag-1)*(width - 1));
-        for(j = first; j <= largest; j = j + (width - 1)){
-            new_index = (num_shifts % num_in_diag)*(width - 1) + j;
-            if(new_index > largest){
-                remainder = new_index - largest;
-                new_index = largest - (width - 1)*(num_in_diag - ((remainder / ((width - 1))) % num_in_diag));
-                new_matrix[new_index] = (*matrix)[j];
-            }
-            else{
-                new_matrix[new_index] = (*matrix)[j];
-            }
-        }
+    else if((col >= width_split) && (row < height_split)){
+        return 2;
     }
-    new_matrix[0] = (*matrix)[0];
-    // Print matrices
-    int l = 0;
-    int m = 0;
-    for(l = 0; l < height; l++){
-        for(m = 0; m < width; m++){
-            printf("%c ", (*matrix)[(width*l + m)]);
-        }
-        printf("\n");
+    else if((col < width_split) && (row >= height_split)){
+        return 3;
     }
-    printf("\nEncrpyted Matrix\n");
-    l = 0;
-    m = 0;
-    for(l = 0; l < height; l++){
-        for(m = 0; m < width; m++){
-            printf("%c ", new_matrix[(width*l + m)]);
-        }
-        printf("\n");
-    }
-
-    // Replace original matrix with encrypted matrix and free memory
-    int z = 0;
-    for(z = 0; z < size; z++){
-        (*matrix)[z] = new_matrix[z];
-    }
-    free(new_matrix);
-    return num_shifts;
-}
-
-int inward_spiral_route(char** matrix, int size, int width, int height){
-    int num_shifts;
-
-    char* new_matrix = (char*)malloc(sizeof(char)*size);
-    int col = width - 1;
-    int row = height - 1;
-    int i = 0;
-    int j;
-    int new_index;
-    int row_end;
-    int remainder;
-    int largest_in_row;
-    // Find which row to stop after
-    if(height % 2 == 1){
-        row_end = (height + 1) / 2;
+    else if((col >= width_split) && (row >= height_split)){
+        return 4;
     }
     else{
-        row_end = height / 2;
+        return 0;
     }
-    for(i = 0; i < row_end; i++){
-        largest_in_row = (((i+1) * width) - 1) - ((width - 1) - col);
-        for(j = 0; j <= col; j++){
-            new_index = (width*i + j) + num_shifts;
-            if(new_index > largest_in_row){
-                // Also need to check if larger than last in column?
-                remainder = new_index - largest_in_row;
-                new_index = remainder*width + largest_in_row;
+}
 
-            }
-            else{
-                new_matrix[new_index] = (*matrix)[width*i + j];
-            }
+int is_row_median(int height, int row){
+    double med = height / 2.0;
+    if(med != height / 2){
+        if(row == floor(med)){
+            return 1;
         }
+        else{
+            return 0;
+        }
+    }
+    else{
+        return 0;
+    }   
+    return 0;
+}
+
+int is_col_median(int width, int col){
+    double med = width / 2.0;
+    if(med != width / 2){
+        if(col == floor(med)){
+            return 1;
+        }
+        else{
+            return 0;
+        }
+    }
+    else{
+        return 0;
+    }   
+    return 0;
+}
+
+int col_med_exists(int width){
+    int bisector = width / 2.0;
+    if(bisector != (width / 2)){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
+int row_med_exists(int height){
+    int bisector = height / 2.0;
+    if(bisector != (height / 2)){
+        return 1;
+    }
+    else{
+        return 0;
     }
 }

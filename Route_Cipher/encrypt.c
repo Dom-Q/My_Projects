@@ -101,26 +101,42 @@ int cipher(char* filename, int array_size){
 
         // Print matrix
         int p = 0;
-        for(p = 0; p < num_chars; p++){
-            printf("%c", table[p]);
+        int q = 0;
+        for(p = 0; p < rows; p++){
+            for(q = 0; q < cols; q++){
+                printf("%c ", table[(cols*p) + q]);
+            }
+            printf("\n");
         }
         printf("\n");
 
         // Perform Cipher
         int num_shifts = -1;
-        int num_ciphers = 1;
+        int num_ciphers = 2;
         srand(time(NULL));
         int cipher = rand() % num_ciphers;
-        switch(num_ciphers){
+        printf("%d\n", cipher);
+
+        // switch(cipher)
+
+        switch(1){
             case 0:
+            printf("Diagonal Route Down/Left from (0,0)\n");
             // Diagonal route
             num_shifts = diagonal_route(&table, num_chars, cols, rows);
             printf("Shifts = %d\n", num_shifts);
             break;
+            case 1:
+            printf("\nInward Spiral from (0,0)\n");
+            // Inward spiral from (0,0)
+            num_shifts = inward_spiral_route(&table, num_chars, cols, rows);
+            if(num_shifts == -1){
+                return 0;
+            }
+            printf("Shifts = %d\n", num_shifts);
             default:
-            
+            break; 
         }
-
     }
     else{
         printf("There was an error fetching your file.\n");
