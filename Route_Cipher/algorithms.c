@@ -151,10 +151,10 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
     if(quadrant == 4){
         // Post-row bound
         if(((height - 1) - row) > ((width - 1) - col)){
-            post_row_bound = (height - 1) - ((width - 1) - row);
+            post_row_bound = (height - 1) - ((width - 1) - col);
         }
         else{
-            post_row_bound = (height - 1) - ((width - col) - 1);
+            post_row_bound = row;
         }
         // Post-col bound
         if(((width - 1) - col) <= ((height - 1) - row)){
@@ -351,7 +351,7 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
             // Quadrant 4
             case 4:
             // If can go down
-            if(row > post_row_bound){
+            if(row < post_row_bound){
                 shifts--;
                 index = index + width;
                 return find_inward_spiral_index(shifts, width, height, index);
@@ -408,6 +408,19 @@ int inward_spiral_route(char** matrix, int size, int width, int height){
         }
         new_matrix[new_index] = (*matrix)[i];
     }
+
+    // Print original matrix for testing
+    // Print matrix
+    int p = 0;
+    int q = 0;
+    for(p = 0; p < height; p++){
+        for(q = 0; q < width; q++){
+            printf("%c ", (*matrix)[(width*p) + q]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+
     i = 0;
     // Replace old matrix with new matrix
     for(i = 0; i < size; i++){
