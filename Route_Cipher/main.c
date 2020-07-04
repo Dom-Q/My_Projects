@@ -1,12 +1,34 @@
 #include "encrypt.h"
 
 int main(){
+    printf(""
+    "====================================\n"
+    "                                    \n"
+    "                Menu                \n"
+    "                ----                \n"
+    "          Type 1 to Encrypt         \n"      
+    "          Type 2 to Decrypt         \n"
+    "                                    \n"
+    "====================================\n"
+    "");
+    int menu = 0;
+    char garbage;
+    scanf("%d", &menu);
+    scanf("%c", &garbage);
+
+    // Get file name
     int valid_title = 0;
-    char title[60];   
+    char title[60];
+    title[0] = 'x';   
     int title_chars = 0;
     // Get file name from user
     while(valid_title == 0){
-        printf("What is the name of the file or path you would like to encrypt?\n");
+        if(menu == 1){
+            printf("What is the name of the file or path you would like to encrypt?\n");
+        }
+        else{
+            printf("What is the name of the file or path you would like to decrypt?\n");
+        }
         fgets(title, 60, stdin); 
         int t = 0;
         // Check if filename is valid (no white space)
@@ -24,6 +46,7 @@ int main(){
                     if(title[59] != '\0'){
                         printf("Your title is too long. It can be at most 60 characters including the suffix.");
                         valid_title = 0;
+                        title_chars = 0;
                         break;
                     }
                 }
@@ -31,7 +54,7 @@ int main(){
             }
         }
     }
-    printf("%d", title_chars);
+    printf("%d\n", title_chars);
     printf("Valid title\n");
     printf("%s", title);
     // dynamically allocate memory for title array
@@ -45,10 +68,27 @@ int main(){
     }
     // Add null terminator
     filename[j] = '\0';
-
-    // Encrypt
-    int status = cipher(filename, title_chars);
-    // Print status and free memory
-    printf("%d", status);
+    if(menu == 1){
+        // Encrypt
+        int status = cipher(filename);
+        // Print status and free memory
+        printf("%d", status);
+    }
+    
+    // Takes message previously encrypted with my encryption algorithm and decrypts
+    else if(menu == 2){
+        int cipher_key = -1;
+        int dimension_key = 0;
+        printf("What are the keys (number of shifts and width) to your file? Enter them in this format : <shifts> <width> (2 numbers separated by a space)\n");
+        if(scanf("%d %d", &cipher_key, &dimension_key) != 2){
+            printf("You did not enter the keys correctly.\n");
+            exit(0);
+        }
+        printf("Succesfully entered keys\n");
+        scanf("%c", &garbage);
+        int status = -1;
+        status = decipher(filename, cipher_key, dimension_key);
+        printf("%d\n", status);
+    }
     free(filename);
 }

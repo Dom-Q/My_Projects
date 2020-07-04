@@ -105,6 +105,91 @@ int find_quadrant(int index, int width, int height){
     }
 }
 
+int find_row_bound(int quadrant, int index, int width, int height){
+    // Algorithm for finding row bound of a given index
+    int row_bound = -1;
+    int row = floor(index / width);
+    int col = index % width;
+    if(quadrant == 1){
+        // Pre-row bound
+        if(col >= row){
+            row_bound = row;
+        }
+        else{
+            row_bound = col + 1;
+        }
+    }
+    if(quadrant == 2){
+        // Pre-row bound
+        if(((width - col) - 1) >= row){
+            row_bound = row;
+        }
+        else{
+            row_bound = (width - col) - 1;
+        }
+    }
+    if(quadrant == 3){
+        // Post-row bound
+        if(((height - 1) - row) <= col){
+            row_bound = row;
+        }
+        else{
+            row_bound = (height - 1) - col;
+        }
+    }
+    if(quadrant == 4){
+        // Post-row bound
+        if(((height - 1) - row) > ((width - 1) - col)){
+            row_bound = (height - 1) - ((width - 1) - col);
+        }
+        else{
+            row_bound = row;
+        }
+    }
+    return row_bound;
+}
+
+int find_col_bound(int quadrant, int index, int width, int height){
+    // Find column bound for each index
+    int row = floor(index / width);
+    int col = index % width;
+    int col_bound = -1;
+    if(quadrant == 1){
+        if(col >= row){
+            col_bound = row - 1;
+        }
+        else{
+            col_bound = col;
+        }
+    }
+    if(quadrant == 2){
+        if(((width - 1) - col) > row){
+            col_bound = (width - 1) - row;
+        }
+        else{
+            col_bound = col;
+        }
+    }
+    if(quadrant == 3){
+        if(col <= ((height-1) - row)){
+            col_bound = col;
+        }
+        else{
+            col_bound = (height - 1) - row;
+        }
+    }
+    if(quadrant == 4){
+        if(((width - 1) - col) <= ((height - 1) - row)){
+            col_bound = col;
+        }
+        else{
+            col_bound = (width - 1) - ((height - 1) - row);
+        }
+    }
+    return col_bound;
+}
+
+
 int is_row_median(int height, int row){
     double med = height / 2.0;
     if(med != height / 2){
@@ -154,5 +239,65 @@ int row_med_exists(int height){
     }
     else{
         return 0;
+    }
+}
+
+int find_spiral_end(int width, int height){ 
+    // If both medians exist
+    if(col_med_exists(width) && row_med_exists(height)){
+        // Square (Odd dimensions)
+        if(width == height){
+            return (width * (height / 2)) + (width / 2);
+        }
+        // Horizontal
+        else if (width > height){
+            int difference = width - height;
+            return (width * (height / 2)) + ((width / 2 ) + (difference / 2));
+        }
+        // Vertical
+        else{
+            int difference = height - width;
+            return (width * ((difference / 2) + (height / 2))) + (width / 2);
+        }
+    }
+    // If only a col med
+    else if(col_med_exists(width)){
+        if(width > height){
+            int row = height / 2;
+            int col = (height / 2) - 1;
+            return width*row + col;
+        }
+        // height > width
+        else{
+            int col = width / 2;
+            int row = height - (width / 2) - 1;
+            return width*row + col;
+        }
+    }
+    else if(row_med_exists(height)){
+        if(width > height){
+            int row = height / 2;
+            int col = width - (height / 2) - 1;
+        }
+        // height > width
+        else{
+            int col = (width / 2) - 1;
+            int row = width / 2; 
+        }
+    }
+    // No med
+    else{
+        if(width > height){
+
+        }
+        else if(width < height){
+
+        }
+        // If square (even dimensions)
+        else{
+            int row = height / 2;
+            int col = (width / 2) - 1;
+            return width * row + col;
+        }
     }
 }

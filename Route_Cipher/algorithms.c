@@ -1,5 +1,8 @@
 #include "encrypt.h"
 
+// Iterative Function for Diagonal Route //
+// ------------------------------------- //
+
 int diagonal_route(char** matrix, int size, int width, int height){
     srand(time(NULL));
     int num_shifts = rand() % (width - 2);
@@ -65,6 +68,17 @@ int diagonal_route(char** matrix, int size, int width, int height){
     }
     new_matrix[0] = (*matrix)[0];
     // Print matrices
+    printf("\nOriginal Matrix\n");
+    int p = 0;
+    int q = 0;
+    for(p = 0; p < height; p++){
+        for(q = 0; q < width; q++){
+            printf("%c ", (*matrix)[(width*p) + q]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+
     printf("\nEncrpyted Matrix\n");
     int l = 0;
     int m = 0;
@@ -83,6 +97,10 @@ int diagonal_route(char** matrix, int size, int width, int height){
     free(new_matrix);
     return num_shifts;
 }
+
+// Recursive Function for Inward Spiral //
+// ------------------------------------ //
+
 int find_inward_spiral_index(int shifts, int width, int height, int index){
     if(shifts == 0){
         return index;
@@ -90,86 +108,18 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
     int quadrant = find_quadrant(index, width, height);
     int row = floor(index / width);
     int col = index % width;
-    int pre_row_bound;
-    int post_row_bound;
-    int pre_col_bound;
-    int post_col_bound;
+    int row_bound = find_row_bound(quadrant, index, width, height);
+    int col_bound = find_col_bound(quadrant, index, width, height);
 
     // printf("Current row = %d\tCurrent col = %d\n", row, col);
     // printf("Quadrant %d\n", quadrant);
 
-    // All algorithms for calculating bounds for any given index
-    if(quadrant == 1){
-        // Pre-row bound
-        if(col >= row){
-            pre_row_bound = row;
-        }
-        else{
-            pre_row_bound = col + 1;
-        }
-        // Pre-col bound
-        if(col >= row){
-            pre_col_bound = row - 1;
-        }
-        else{
-            pre_col_bound = col;
-        }
-        // Post row not needed for these quadrants (?)
-    }
-    if(quadrant == 2){
-        // Pre-row bound
-        if(((width - col) - 1) >= row){
-            pre_row_bound = row;
-        }
-        else{
-            pre_row_bound = (width - col) - 1;
-        }
-        // Post-col bound
-        if(((width - 1) - col) > row){
-            post_col_bound = (width - 1) - row;
-        }
-        else{
-            post_col_bound = col;
-        }
-    }
-    if(quadrant == 3){
-        // Post-row bound
-        if(((height - 1) - row) <= col){
-            post_row_bound = row;
-        }
-        else{
-            post_row_bound = (height - 1) - col;
-        }
-        // Pre-col bound
-        if(col <= ((height-1) - row)){
-            pre_col_bound = col;
-        }
-        else{
-            pre_col_bound = (height - 1) - row;
-        }
-    }
-    if(quadrant == 4){
-        // Post-row bound
-        if(((height - 1) - row) > ((width - 1) - col)){
-            post_row_bound = (height - 1) - ((width - 1) - col);
-        }
-        else{
-            post_row_bound = row;
-        }
-        // Post-col bound
-        if(((width - 1) - col) <= ((height - 1) - row)){
-            post_col_bound = col;
-        }
-        else{
-            post_col_bound = (width - 1) - ((height - 1) - row);
-        }
-    }
     if(shifts > 0){
         switch(quadrant){
             // Quadrant 1
             case 1:
             // If col med and cannot go right
-            if((is_col_median(width, col)) && (pre_col_bound + 1 >= width / 2)){
+            if((is_col_median(width, col)) && (col_bound + 1 >= width / 2)){
                 // Always go down if not row-med
                 if(!(is_row_median(height, row))){
                     shifts--;
@@ -177,7 +127,7 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
                     return find_inward_spiral_index(shifts, width, height, index);
                 }
                 // If dead center and and cant go right and pre row less than med, we should be able to go down
-                else if(pre_row_bound < (height / 2)){
+                else if(row_bound < (height / 2)){
                     shifts--;
                     index = index + width;
                     return find_inward_spiral_index(shifts, width, height, index);
@@ -190,7 +140,7 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
                 }
             }
             // Check if an upward shift is available
-            else if(row > pre_row_bound){
+            else if(row > row_bound){
                 index = index - width;
                 shifts--;
                 return find_inward_spiral_index(shifts, width, height, index);
@@ -201,7 +151,7 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
                 if(!(col_med_exists(width))){
                     // Can we go right?
                     // If not, it must be restart
-                    if((pre_col_bound + 1) >= (width / 2)){
+                    if((col_bound + 1) >= (width / 2)){
                         index = 0;
                         shifts--;
                         return find_inward_spiral_index(shifts, width, height, index);
@@ -222,7 +172,7 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
                         return find_inward_spiral_index(shifts, width, height, index);
                     }
                     // If dead center and pre-col bound < med we should be able to shift right
-                    else if((pre_col_bound + 1) < (width / 2)){
+                    else if((col_bound + 1) < (width / 2)){
                         shifts--;
                         index++;
                         return find_inward_spiral_index(shifts, width, height, index);
@@ -236,20 +186,20 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
                 }
             }
             // If not col median AND pre-col < width / 2 go right
-            else if(!(is_col_median(width, col)) && ((pre_col_bound + 1) < (width / 2.0))){
+            else if(!(is_col_median(width, col)) && ((col_bound + 1) < (width / 2.0))){
                 index++;
                 shifts--;
                 return find_inward_spiral_index(shifts, width, height, index);
             }
             // if med but pre col + 1 !> width / 2.0
-            else if((is_col_median(width, col)) && ((pre_col_bound + 1) < (width / 2))){
+            else if((is_col_median(width, col)) && ((col_bound + 1) < (width / 2))){
                 // Shift right
                 shifts--;
                 index++;
                 return find_inward_spiral_index(shifts, width, height, index);
             }
             // If can't go up or right and not median (final case?)
-            else if(pre_col_bound + 1 >= width / 2.0){
+            else if(col_bound + 1 >= width / 2.0){
                 shifts--;
                 return find_inward_spiral_index(shifts, width, height, 0);
             }
@@ -258,7 +208,7 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
             // Quadrant 2
             case 2:
             // First always go right if possible
-            if(post_col_bound > col){
+            if(col_bound > col){
                 index++;
                 shifts--;
                 return find_inward_spiral_index(shifts, width, height, index);
@@ -282,14 +232,14 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
                 // If row med
                 else{
                     // Check if can go down
-                    if(pre_row_bound < (height / 2)){
+                    if(row_bound < (height / 2)){
                         index = index + width;
                         shifts--;
                         return find_inward_spiral_index(shifts, width, height, index);
                     }
-                    else if(pre_row_bound == (width / 2)){
+                    else if(row_bound == (width / 2)){
                         // If at post bound, restart
-                        if(post_col_bound == col){
+                        if(col_bound == col){
                             shifts--;
                             index = 0;
                             return find_inward_spiral_index(shifts, width, height, index);
@@ -309,7 +259,7 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
             case 3:
             if(is_col_median(width, col)){
                 // Col med and can go left
-                if(pre_col_bound < (width / 2)){
+                if(col_bound < (width / 2)){
                     shifts--;
                     index--;
                     return find_inward_spiral_index(shifts, width, height, index);
@@ -317,7 +267,7 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
                 // Can't go left
                 else{
                     // If can go down go down
-                    if(post_row_bound > row){
+                    if(row_bound > row){
                         index = index + width;
                         shifts--;
                         return find_inward_spiral_index(shifts, width, height, index);
@@ -330,14 +280,14 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
                 }
             }
             // IF not col med
-            else if(col > pre_col_bound){
+            else if(col > col_bound){
                 // Always go left first
                 index--;
                 shifts--;
                 return find_inward_spiral_index(shifts, width, height, index);
             }
             // Can we go up
-            else if((post_row_bound - 1) < (height / 2)){
+            else if((row_bound - 1) < (height / 2)){
                 index = 0;
                 shifts--;
                 return find_inward_spiral_index(shifts, width, height, index);
@@ -351,7 +301,7 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
             // Quadrant 4
             case 4:
             // If can go down
-            if(row < post_row_bound){
+            if(row < row_bound){
                 shifts--;
                 index = index + width;
                 return find_inward_spiral_index(shifts, width, height, index);
@@ -371,6 +321,9 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
     }
 }
 
+// Function for moving the chars to their new locations for spiral route //
+// --------------------------------------------------------------------- //
+
 int inward_spiral_route(char** matrix, int size, int width, int height){
     int num_shifts;
     srand(time(NULL));
@@ -380,33 +333,12 @@ int inward_spiral_route(char** matrix, int size, int width, int height){
     int i = 0;
     for(i = 0; i < size; i++){
         int new_index;
-
-        // TESTING
-        printf("\nStart index = %d\n\n", i);
-        int x = 0;
-        int y = 0;
-        for(x = 0; x < height; x++){
-            for(y = 0; y < width; y++){
-                if((width*x + y) < 10){
-                    printf("0%d ", width*x + y);
-                }
-                else{
-                    printf("%d ", width*x + y);
-                }
-            }
-            printf("\n");
-        }
-
-        // Change first arg back to num_shifts
-        new_index = find_inward_spiral_index(2, width, height, i);
-
-        //TESTING
-        printf("\nEnd index = %d\n", new_index);
-
+        new_index = find_inward_spiral_index(num_shifts, width, height, i);
         if(new_index == -1){
             return 0;
         }
         new_matrix[new_index] = (*matrix)[i];
+        
     }
 
     // Print original matrix for testing
@@ -441,4 +373,53 @@ int inward_spiral_route(char** matrix, int size, int width, int height){
     // Free memory and return key (number of shifts)
     free(new_matrix);
     return num_shifts;
+}
+
+
+//------------//
+// Decryption //
+//------------//
+
+int find_reverse_spiral_index(int shifts, int width, int height, int index){
+    // Base case
+    if(shifts == 0){
+        return index;
+    }
+    int row = floor(index / width);
+    int col = index % width;
+    int quadrant;
+    int col_bound;
+    int row_bound;
+    quadrant = find_quadrant(index, width, height);
+    row_bound = find_row_bound(quadrant, index, width, height);
+    col_bound = find_col_bound(quadrant, index, width, height);
+
+    // Diverge based on quadrant
+    switch(quadrant){
+        case 1:
+        // Quadrant 1
+        if(index == 0){
+            index = find_spiral_end(width, height);
+            shifts--;
+            return find_reverse_spiral_index(shifts, width, height, index);
+        }
+
+        case 2:
+
+        case 3:
+
+        case 4:
+
+        default:
+
+    }
+}
+
+void reverse_inward_spiral(char** matrix, int shifts, int width, int height){
+    char* new_matrix = (char*)malloc(width*height*(sizeof(char)));
+    int i = 0;
+    // Parse full matrix and find new index of each index
+    for(i = 0; i < width*height; i++){
+
+    }
 }

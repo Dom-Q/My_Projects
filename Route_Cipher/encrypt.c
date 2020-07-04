@@ -1,6 +1,6 @@
 #include "encrypt.h"
 
-int cipher(char* filename, int array_size){
+int cipher(char* filename){
     // Open file 
     printf("%s\n", filename);
     FILE* file_ptr;
@@ -70,7 +70,6 @@ int cipher(char* filename, int array_size){
             if(temp == ' '){
                 space_indices[sp] = file_index;
                 sp++;
-                continue;
             }
             else if(temp == '\t'){
                 tab_indices[t] = file_index;
@@ -99,17 +98,6 @@ int cipher(char* filename, int array_size){
         }
         printf("\n");
 
-        // Print matrix
-        int p = 0;
-        int q = 0;
-        for(p = 0; p < rows; p++){
-            for(q = 0; q < cols; q++){
-                printf("%c ", table[(cols*p) + q]);
-            }
-            printf("\n");
-        }
-        printf("\n");
-
         // Perform Cipher
         int num_shifts = -1;
         int num_ciphers = 2;
@@ -117,9 +105,7 @@ int cipher(char* filename, int array_size){
         int cipher = rand() % num_ciphers;
         printf("%d\n", cipher);
 
-        // switch(cipher)
-
-        switch(1){
+        switch(cipher){
             case 0:
             printf("Diagonal Route Down/Left from (0,0)\n");
             // Diagonal route
@@ -136,6 +122,26 @@ int cipher(char* filename, int array_size){
             printf("Shifts = %d\n", num_shifts);
             default:
             break; 
+        }
+        //Write encrypted matrix to file in matrix format
+        FILE* new_file = fopen("Encrypted.txt", "w");
+        fprintf(new_file, "%d\n", cipher);
+        i = 0;
+        int j = 0;
+        for(i = 0; i < rows; i++){
+            for(j = 0; j < cols; j++){
+                fprintf(new_file, "%c ", table[i*cols + j]);
+            }
+            fprintf(new_file, "\n");
+        }
+        fprintf(new_file, "\n");
+        // Char to mark end of matrix
+        fprintf(new_file, "%c\n", 240);
+        i = 0;
+        j = 0;
+        // Space indices
+        for(i = 0; i < num_spaces; i++){
+            fprintf(new_file, "%d ", space_indices[i]);
         }
     }
     else{
