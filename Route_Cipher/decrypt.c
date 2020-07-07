@@ -71,18 +71,26 @@ int decipher(char* filename, int shifts, int width){
         }
         printf("\n");
     }
+    printf("Cipher = %d\n", cipher);
 
-    switch(cipher){
+    // Change to cipher
+    switch(1){
         case 0:
         // Diagonal Route 
         break;
         case 1:
+        printf("Case 1 entered\n");
+        reverse_inward_spiral(&matrix, shifts, width, height);
+        printf("Decryption Ran\n");
         break;
         // Inward Spiral from (0,0)
         default:
         break;
 
     }
+    // Add spaces and remove fill ins
+    
+
     // Free Memory
     free(space_indices);
     free(matrix);

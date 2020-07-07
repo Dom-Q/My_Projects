@@ -223,7 +223,7 @@ int is_col_median(int width, int col){
 }
 
 int col_med_exists(int width){
-    int bisector = width / 2.0;
+    double bisector = width / 2.0;
     if(bisector != (width / 2)){
         return 1;
     }
@@ -233,7 +233,7 @@ int col_med_exists(int width){
 }
 
 int row_med_exists(int height){
-    int bisector = height / 2.0;
+    double bisector = height / 2.0;
     if(bisector != (height / 2)){
         return 1;
     }
@@ -243,10 +243,14 @@ int row_med_exists(int height){
 }
 
 int find_spiral_end(int width, int height){ 
+
+    printf("Width = %d\tHeight = %d\t\n", width, height);
+
     // If both medians exist
     if(col_med_exists(width) && row_med_exists(height)){
         // Square (Odd dimensions)
         if(width == height){
+            printf("Entered\n");
             return (width * (height / 2)) + (width / 2);
         }
         // Horizontal
@@ -288,10 +292,14 @@ int find_spiral_end(int width, int height){
     // No med
     else{
         if(width > height){
-
+            int row = height / 2;
+            int col = (height / 2) - 1;
+            return width*row + col;
         }
         else if(width < height){
-
+            int col = (width / 2) - 1;
+            int row = width / 2;
+            return width*row + col;
         }
         // If square (even dimensions)
         else{

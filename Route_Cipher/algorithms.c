@@ -338,7 +338,6 @@ int inward_spiral_route(char** matrix, int size, int width, int height){
             return 0;
         }
         new_matrix[new_index] = (*matrix)[i];
-        
     }
 
     // Print original matrix for testing
@@ -394,32 +393,204 @@ int find_reverse_spiral_index(int shifts, int width, int height, int index){
     row_bound = find_row_bound(quadrant, index, width, height);
     col_bound = find_col_bound(quadrant, index, width, height);
 
+    printf("\nRow = %d\tCol = %d\tQuadrant = %d\tCol_bound = %d\t Row_bound = %d\n\n",row, col, quadrant, col_bound, row_bound);
+
     // Diverge based on quadrant
     switch(quadrant){
+        // Quadrant I
         case 1:
-        // Quadrant 1
         if(index == 0){
             index = find_spiral_end(width, height);
+            printf("Center = %d\n", index);
             shifts--;
             return find_reverse_spiral_index(shifts, width, height, index);
         }
+        // If col-med
+        else if(is_col_median(width, col)){
+            // Can go left
+            if(col_bound < col){
+                shifts--;
+                index--;
+                return find_reverse_spiral_index(shifts, width, height, index);
+            }
+            // Otherwise go up
+            else{
+                shifts--;
+                index = index - width;
+                return find_reverse_spiral_index(shifts, width, height, index);
+            }
+        }
+        // Row med
+        else if(is_row_median(height, row)){
+            // Can go down
+            if(row > row_bound){
+                shifts--;
+                index = index + width;
+                return find_reverse_spiral_index(shifts, width, height, index);
+            }
+            else{
+                // Left if can't go down
+                if(col > col_bound){
+                    shifts--;
+                    index--;
+                    return find_reverse_spiral_index(shifts, width, height, index);
+                }
+                // Otherwise corner, go down
+                else{
+                    shifts--;
+                    index = index + width;
+                    return find_reverse_spiral_index(shifts, width, height, index);
+                }
+            }
+        }
+        // Not 0 or any med
+        else{
+            // Left
+            if(col_bound < col){
+                shifts--;
+                index--;
+                return find_reverse_spiral_index(shifts, width, height, index);
+            }
+            // Down
+            else{
+                shifts--;
+                index = index + width;
+                return find_reverse_spiral_index(shifts, width, height, index);
+            }
+        }
 
+        // Quadrant II
         case 2:
+        // Row med
+        if(is_row_median(height, row)){
+            // Can go up
+            if(row_bound < row){
+                shifts--;
+                index = index - width;
+                return find_reverse_spiral_index(shifts, width, height, index);
+            }
+            // Otherwise left
+            else{
+                shifts--;
+                index--;
+                return find_reverse_spiral_index(shifts, width, height, index);
+            }
+        }
+        // Otherwise if not row-med (can't be col med)
+        else{
+            // Check up
+            if(row > row_bound){
+                shifts--;
+                index = index - width;
+                return find_reverse_spiral_index(shifts, width, height, index);
+            }
+            // Otherwise left
+            else{
+                shifts--;
+                index--;
+                return find_reverse_spiral_index(shifts, width, height, index);
+            }
+        }
 
+        // Quadrant III
         case 3:
+        // Col-med
+        if(is_col_median(width, col)){
+            // Check up
+            if(col_bound == col){
+                shifts--;
+                index = index - width;
+                return find_reverse_spiral_index(shifts, width, height, index);
+            }
+            // Otherwise right
+            else{
+                shifts--;
+                index++;
+                return find_reverse_spiral_index(shifts, width, height, index);
+            }
+        }
+        // Not a med
+        else{
+            // Check down
+            if(row < row_bound){
+                shifts--;
+                index = index + width;
+                return find_reverse_spiral_index(shifts, width, height, index);
+            }
+            // Otherwise right
+            else{
+                shifts--;
+                index++;
+                return find_reverse_spiral_index(shifts, width, height, index);
+            }
+        }
 
+        // Quadrant IV
         case 4:
-
+        // No meds
+        // Check right
+        if(col_bound > col){
+            shifts--;
+            index++;
+            return find_reverse_spiral_index(shifts, width, height, index);
+        }
+        else{
+            shifts--;
+            index = index - width;
+            return find_reverse_spiral_index(shifts, width, height, index);
+        }
         default:
-
+        return -1;
     }
 }
 
 void reverse_inward_spiral(char** matrix, int shifts, int width, int height){
+    int new_index = -1;
     char* new_matrix = (char*)malloc(width*height*(sizeof(char)));
     int i = 0;
-    // Parse full matrix and find new index of each index
+    // Parse full matrix and find new index of each character
     for(i = 0; i < width*height; i++){
 
+        printf("Original Index = %d\n", i);
+
+        new_index = find_reverse_spiral_index(shifts, width, height, i);
+        if(new_index == -1){
+            return;
+        }
+
+        printf("New Index = %d\n\n", new_index);
+
+        new_matrix[new_index] = (*matrix)[i];
     }
+    
+    // TEST print old matrix
+    i = 0;
+    int j = 0;
+    printf("\n");
+    for(i = 0; i < height; i++){
+        for(j = 0; j < width; j++){
+            printf("%c ", (*matrix)[width*i + j]);
+        }
+        printf("\n");
+    }
+
+    // Replace old matrix 
+    i = 0;
+    for(i = 0; i < width*height; i++){
+        (*matrix)[i] = new_matrix[i];
+    }
+
+    // TEST print new matrix
+    i = 0;
+    j = 0;
+    printf("\n");
+    for(i = 0; i < height; i++){
+        for(j = 0; j < width; j++){
+            printf("%c ", (*matrix)[width*i + j]);
+        }
+        printf("\n");
+    }
+    // Free memory and return
+    free(new_matrix);
+    return;
 }

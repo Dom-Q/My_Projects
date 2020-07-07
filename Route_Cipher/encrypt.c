@@ -105,7 +105,8 @@ int cipher(char* filename){
         int cipher = rand() % num_ciphers;
         printf("%d\n", cipher);
 
-        switch(cipher){
+        // Change to cipher
+        switch(1){
             case 0:
             printf("Diagonal Route Down/Left from (0,0)\n");
             // Diagonal route
