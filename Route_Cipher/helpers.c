@@ -50,7 +50,6 @@ int get_row(int size){
             continue;
         }
     }
-    printf("factors = %d\n", num_factors);
     // Put all factors (greater than 1) in a list
     int* factors = (int*)malloc(sizeof(int)*num_factors);
     i = 2;
@@ -71,13 +70,11 @@ int get_row(int size){
     {
         srand(time(NULL));
         int random = (rand() % num_factors);
-        printf("index = %d\n", random);
         row = factors[random];
         // Check if col will also be greater than 3
         if((size / row) < 4){
             row = -1;
         }
-        printf("row = %d\n", row);
     }
     free(factors);
     return row;
@@ -243,14 +240,10 @@ int row_med_exists(int height){
 }
 
 int find_spiral_end(int width, int height){ 
-
-    printf("Width = %d\tHeight = %d\t\n", width, height);
-
     // If both medians exist
     if(col_med_exists(width) && row_med_exists(height)){
         // Square (Odd dimensions)
         if(width == height){
-            printf("Entered\n");
             return (width * (height / 2)) + (width / 2);
         }
         // Horizontal
@@ -282,11 +275,13 @@ int find_spiral_end(int width, int height){
         if(width > height){
             int row = height / 2;
             int col = width - (height / 2) - 1;
+            return width*row + col;
         }
         // height > width
         else{
             int col = (width / 2) - 1;
             int row = width / 2; 
+            return width*row + col;
         }
     }
     // No med
