@@ -2,7 +2,6 @@
 
 int cipher(char* filename){
     // Open file 
-    printf("%s\n", filename);
     FILE* file_ptr;
     file_ptr = fopen(filename, "r");
     // Check if file opened successfully
@@ -25,7 +24,6 @@ int cipher(char* filename){
         printf("Your file exceeds 15000 characters.\n");
         return 0;
     }
-    printf("%d\n", num_chars);
 
     // Add fill-in chars to get a perfect square
     // This ensures that there will be a factor of the array size that is greater than 3,
@@ -33,8 +31,6 @@ int cipher(char* filename){
     while(sqrt(num_chars) != floor(sqrt(num_chars))){
         num_chars++;
     }
-    printf("Adjusted number of characters in file = %d\n", num_chars);
-
     // Make sure file isn't too small
     if(num_chars < 20){
         printf("Your file must contain more than 20 characters.\n");
@@ -53,8 +49,6 @@ int cipher(char* filename){
     int cols;
     rows = get_row(num_chars);
     cols = num_chars / rows;
-
-    printf("Rows = %d\tCols = %d\n", rows, cols);
 
     // Close and re-open and re-read file and fill the matrix ommitting whitespace
     fclose(file_ptr);
@@ -88,42 +82,32 @@ int cipher(char* filename){
         while(i < num_chars){
             table[i] = 237;
             i++;
-            printf("%d\n", i);
         }
-        printf("%d\n", i);
-
-        int testers = 0;
-        for(testers = 0; testers < sp; testers ++){
-            printf("%d ", space_indices[testers]);
-        }
-        printf("\n");
 
         // Perform Cipher
         int num_shifts = -1;
         int num_ciphers = 2;
         srand(time(NULL));
         int cipher = rand() % num_ciphers;
-        printf("%d\n", cipher);
-
-        // Change to cipher
-        switch(1){
+        switch(cipher){
             case 0:
-            printf("Diagonal Route Down/Left from (0,0)\n");
             // Diagonal route
+            printf("Diagonal Route Encryption\n");
             num_shifts = diagonal_route(&table, num_chars, cols, rows);
-            printf("Shifts = %d\n", num_shifts);
             break;
             case 1:
-            printf("\nInward Spiral from (0,0)\n");
             // Inward spiral from (0,0)
+            printf("Spiral Route Encryption\n");
             num_shifts = inward_spiral_route(&table, num_chars, cols, rows);
             if(num_shifts == -1){
                 return 0;
             }
-            printf("Shifts = %d\n", num_shifts);
             default:
             break; 
         }
+        printf("- KEYS -\n");
+        printf("Rows = %d\tCols = %d\n", rows, cols);
+        printf("Shifts = %d\n", num_shifts);
         //Write encrypted matrix to file in matrix format
         FILE* new_file = fopen("Encrypted.txt", "w");
         fprintf(new_file, "%d\n", cipher);
@@ -144,6 +128,20 @@ int cipher(char* filename){
         for(i = 0; i < num_spaces; i++){
             fprintf(new_file, "%d ", space_indices[i]);
         }
+        fprintf(new_file, "\n");
+        fprintf(new_file, "%c\n", 240);
+        // Newline indices
+        i = 0;
+        for(i = 0; i < num_newlines; i++){
+            fprintf(new_file, "%d ", newline_indices[i]);
+        }
+        printf("-------------------------------------------------------------------------------------------\n"
+               "Your file has been encrypted.\n"
+               "The encrypted text has been written to Encrypted.txt\n"
+               "To decrypt, simply choose 2 from the menu.\n"
+               "Only the most recent text written to Encrypted.txt may be decrypted.\n"
+               "Your keys are printed above. You will need to remember them in order to decrypt the file.\n"
+               "-------------------------------------------------------------------------------------------\n");
     }
     else{
         printf("There was an error fetching your file.\n");
@@ -153,5 +151,6 @@ int cipher(char* filename){
     free(space_indices);
     free(tab_indices);
     free(newline_indices);
+    free(table);
     return 1;
 }
