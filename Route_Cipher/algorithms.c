@@ -1,11 +1,19 @@
 #include "encrypt.h"
 
+//-----------------------//
+// ENCRYPTION ALGORITHMS //
+//-----------------------//
+
 // Iterative Function for Diagonal Route //
 // ------------------------------------- //
 
 int diagonal_route(char** matrix, int size, int width, int height){
     srand(time(NULL));
     int num_shifts = rand() % (width - 2);
+    while(num_shifts < 3){
+        srand(time(NULL));
+        num_shifts = rand() % (width - 2);
+    }
     int largest;
     int remainder;
     int num_in_diag;
@@ -13,18 +21,20 @@ int diagonal_route(char** matrix, int size, int width, int height){
     int j = 0;
     int new_index = 0;
     char* new_matrix = (char*)malloc(size*(sizeof(char)));
+
     // First half of diagonals
     // Loop through each diagonal index in each column
     for(i = 1; i < width; i++){
-        largest = i * width;
         if(i >= height){
             num_in_diag = height;
+            largest = (height - 1)*width + ((i + 1) - height);
         }
         else{
             num_in_diag = i + 1;
+            largest = i*width;
         }
         for(j = i; j <= largest; j = j + (width - 1)){
-            new_index = (num_shifts % (i + 1))*(width - 1) + j;
+            new_index = (num_shifts % num_in_diag)*(width - 1) + j;
             // Check overflow
             if(new_index > largest){
                 remainder = new_index - largest;
@@ -67,27 +77,6 @@ int diagonal_route(char** matrix, int size, int width, int height){
         }
     }
     new_matrix[0] = (*matrix)[0];
-    // Print matrices
-    printf("\nOriginal Matrix\n");
-    int p = 0;
-    int q = 0;
-    for(p = 0; p < height; p++){
-        for(q = 0; q < width; q++){
-            printf("%c ", (*matrix)[(width*p) + q]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-
-    printf("\nEncrpyted Matrix\n");
-    int l = 0;
-    int m = 0;
-    for(l = 0; l < height; l++){
-        for(m = 0; m < width; m++){
-            printf("%c ", new_matrix[(width*l + m)]);
-        }
-        printf("\n");
-    }
 
     // Replace original matrix with encrypted matrix and free memory
     int z = 0;
@@ -134,7 +123,7 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
                 }
                 // Otherwise, if center and cant go down or right it should be restart
                 else{
-                    index - 0;
+                    index = 0;
                     shifts--;
                     return find_inward_spiral_index(shifts, width, height, index);
                 }
@@ -166,7 +155,7 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
                 // If there is a col med
                 else{
                     // If not in the col median go right
-                    if(!(is_col_median)){
+                    if(!(is_col_median(width, col))){
                         shifts--;
                         index++;
                         return find_inward_spiral_index(shifts, width, height, index);
@@ -259,7 +248,7 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
             case 3:
             if(is_col_median(width, col)){
                 // Col med and can go left
-                if(col_bound < (width / 2)){
+                if(col_bound < col){
                     shifts--;
                     index--;
                     return find_inward_spiral_index(shifts, width, height, index);
@@ -325,14 +314,27 @@ int find_inward_spiral_index(int shifts, int width, int height, int index){
 // --------------------------------------------------------------------- //
 
 int inward_spiral_route(char** matrix, int size, int width, int height){
-    int num_shifts;
+    // Generate number of shifts
     srand(time(NULL));
-    num_shifts = rand() % (width + height);
+    int num_shifts = rand() % (width + height);
+    while(num_shifts < 5){
+        srand(time(NULL));
+        num_shifts = rand() % (width + height);
+    }
+    if(width > height){
+        while(num_shifts < (0.6*width)){
+            srand(time(NULL));
+            num_shifts = rand() % (width + height);
+        }
+    }
+
     char* new_matrix = (char*)malloc(sizeof(char)*size);
     // Parse original matrix and fill new matrix with shifted chars
     int i = 0;
+    int new_index;
+    int p = 0;
+    int q = 0;
     for(i = 0; i < size; i++){
-        int new_index;
         new_index = find_inward_spiral_index(num_shifts, width, height, i);
         if(new_index == -1){
             return 0;
@@ -340,33 +342,10 @@ int inward_spiral_route(char** matrix, int size, int width, int height){
         new_matrix[new_index] = (*matrix)[i];
     }
 
-    // Print original matrix for testing
-    // Print matrix
-    int p = 0;
-    int q = 0;
-    for(p = 0; p < height; p++){
-        for(q = 0; q < width; q++){
-            printf("%c ", (*matrix)[(width*p) + q]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-
     i = 0;
     // Replace old matrix with new matrix
     for(i = 0; i < size; i++){
         (*matrix)[i] = new_matrix[i];
-    }
-
-    // Print matrix for testing
-    printf("\nEncrypted Matrix\n");
-    i = 0;
-    int j = 0;
-    for(i = 0; i < height; i++){
-        for(j = 0; j < width; j++){
-            printf("%c ", (*matrix)[width*i + j]);
-        }
-        printf("\n");
     }
 
     // Free memory and return key (number of shifts)
@@ -375,10 +354,88 @@ int inward_spiral_route(char** matrix, int size, int width, int height){
 }
 
 
-//------------//
-// Decryption //
-//------------//
+//-----------------------//
+// DECRYTPION ALGORITHMS //
+//-----------------------//
 
+// Iterative Function to Decrypt Diagonal Route //
+//----------------------------------------------//
+void reverse_diagonal_route(char** matrix, int shifts, int width, int height){
+    char* new_matrix = (char*)malloc(sizeof(char)*width*height);
+    int largest;
+    int remainder;
+    int num_in_diag;
+    int i = 0;
+    int j = 0;
+    int new_index = 0;
+    // Loop through and shift first diagonal half of matrix
+    for(i = 1; i < width; i++){
+        if(i >= height){
+            num_in_diag = height;
+            largest = (height - 1)*width + ((i + 1) - height);
+        }
+        else{
+            num_in_diag = i + 1;
+            largest = i*width;
+        }
+        // Loop through each diagonal column
+        for(j = i; j <= largest; j = j + (width - 1)){
+            // Determine shifted index for any given index
+            new_index = j - (shifts % num_in_diag)*(width - 1);
+            // Check overflow and fill new matrix
+            if(new_index < i){
+                remainder = i - new_index;
+                new_index = largest - (width - 1)*(((remainder / (width - 1)) -1) % num_in_diag);
+                new_matrix[new_index] = (*matrix)[j];
+            }
+            else{
+                new_matrix[new_index] = (*matrix)[j];
+            }
+        }    
+    }
+    // Second diagonal half of matrix
+    int row = 1;
+    int first;
+    j = 0;
+    largest = 0;
+    new_index = 0;
+    num_in_diag = 0;
+    remainder = 0;
+    for(row = 1; row < height; row++){
+        first = ((row + 1)*(width) - 1);
+        // alg to find number of elements in diagonal for variable dimensioned matrix
+        if((width + row) <= height){
+            num_in_diag = width;
+        }
+        else{
+            num_in_diag = height - row;
+        }
+        largest = first + ((num_in_diag-1)*(width - 1));
+        // Loop through each diagonal column in second half
+        for(j = first; j <= largest; j = j + (width - 1)){
+            new_index =  j - (shifts % num_in_diag)*(width - 1);
+            if(new_index < first){
+                remainder = first - new_index;
+                new_index = largest - (width - 1)*(((remainder / (width - 1)) -1) % num_in_diag);
+                new_matrix[new_index] = (*matrix)[j];
+            }
+            else{
+                new_matrix[new_index] = (*matrix)[j];
+            }
+        }
+    }
+    new_matrix[0] = (*matrix)[0];
+
+    // Replace old matrix with shifted charachters
+    int z = 0;
+    for(z = 0; z < (width*height); z++){
+        (*matrix)[z] = new_matrix[z];
+    }
+    free(new_matrix);
+}
+
+// Recursive Function to shift chars along reverse spiral path //
+//-------------------------------------------------------------//
 int find_reverse_spiral_index(int shifts, int width, int height, int index){
     // Base case
     if(shifts == 0){
@@ -392,16 +449,12 @@ int find_reverse_spiral_index(int shifts, int width, int height, int index){
     quadrant = find_quadrant(index, width, height);
     row_bound = find_row_bound(quadrant, index, width, height);
     col_bound = find_col_bound(quadrant, index, width, height);
-
-    printf("\nRow = %d\tCol = %d\tQuadrant = %d\tCol_bound = %d\t Row_bound = %d\n\n",row, col, quadrant, col_bound, row_bound);
-
     // Diverge based on quadrant
     switch(quadrant){
         // Quadrant I
         case 1:
         if(index == 0){
             index = find_spiral_end(width, height);
-            printf("Center = %d\n", index);
             shifts--;
             return find_reverse_spiral_index(shifts, width, height, index);
         }
@@ -497,7 +550,7 @@ int find_reverse_spiral_index(int shifts, int width, int height, int index){
         // Col-med
         if(is_col_median(width, col)){
             // Check up
-            if(col_bound == col){
+            if(col_bound >= col){
                 shifts--;
                 index = index - width;
                 return find_reverse_spiral_index(shifts, width, height, index);
@@ -544,35 +597,21 @@ int find_reverse_spiral_index(int shifts, int width, int height, int index){
     }
 }
 
+// Function to shift characters back to original locations //
+//---------------------------------------------------------//
 void reverse_inward_spiral(char** matrix, int shifts, int width, int height){
     int new_index = -1;
     char* new_matrix = (char*)malloc(width*height*(sizeof(char)));
     int i = 0;
     // Parse full matrix and find new index of each character
     for(i = 0; i < width*height; i++){
-
-        printf("Original Index = %d\n", i);
-
         new_index = find_reverse_spiral_index(shifts, width, height, i);
         if(new_index == -1){
             return;
         }
-
-        printf("New Index = %d\n\n", new_index);
-
         new_matrix[new_index] = (*matrix)[i];
     }
     
-    // TEST print old matrix
-    i = 0;
-    int j = 0;
-    printf("\n");
-    for(i = 0; i < height; i++){
-        for(j = 0; j < width; j++){
-            printf("%c ", (*matrix)[width*i + j]);
-        }
-        printf("\n");
-    }
 
     // Replace old matrix 
     i = 0;
@@ -580,16 +619,6 @@ void reverse_inward_spiral(char** matrix, int shifts, int width, int height){
         (*matrix)[i] = new_matrix[i];
     }
 
-    // TEST print new matrix
-    i = 0;
-    j = 0;
-    printf("\n");
-    for(i = 0; i < height; i++){
-        for(j = 0; j < width; j++){
-            printf("%c ", (*matrix)[width*i + j]);
-        }
-        printf("\n");
-    }
     // Free memory and return
     free(new_matrix);
     return;
