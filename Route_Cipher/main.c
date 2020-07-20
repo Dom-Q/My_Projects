@@ -55,7 +55,7 @@ int main(){
         }
         printf("Valid title\n");
     }
-    // dynamically allocate memory for title array
+    // Dynamically allocate memory for title array
     // The extra memory locations is for a null terminator
     char* filename = (char*)malloc(title_chars*sizeof(char) + 1*sizeof(char));
     // Copy title into allocated array
