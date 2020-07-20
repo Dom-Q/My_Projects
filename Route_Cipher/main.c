@@ -27,7 +27,7 @@ int main(){
             printf("What is the name of the file or path you would like to encrypt?\n");
         }
         else{
-            printf("What is the name of the file or path you would like to decrypt?\n");
+            break;
         }
         fgets(title, 60, stdin); 
         int t = 0;
@@ -53,10 +53,8 @@ int main(){
                 continue;
             }
         }
+        printf("Valid title\n");
     }
-    printf("%d\n", title_chars);
-    printf("Valid title\n");
-    printf("%s", title);
     // dynamically allocate memory for title array
     // The extra memory locations is for a null terminator
     char* filename = (char*)malloc(title_chars*sizeof(char) + 1*sizeof(char));
@@ -64,7 +62,6 @@ int main(){
     int j = 0;
     for(j = 0; j < (title_chars / sizeof(char)); j++){
         filename[j] = title[j];
-        printf("%c\n", filename[j]);
     }
     // Add null terminator
     filename[j] = '\0';
@@ -72,7 +69,7 @@ int main(){
         // Encrypt
         int status = cipher(filename);
         // Print status and free memory
-        printf("%d", status);
+        printf("\nStatus - %d\n", status);
     }
     
     // Takes message previously encrypted with my encryption algorithm and decrypts
@@ -87,8 +84,8 @@ int main(){
         printf("Succesfully entered keys\n");
         scanf("%c", &garbage);
         int status = -1;
-        status = decipher(filename, cipher_key, dimension_key);
-        printf("%d\n", status);
+        status = decipher(cipher_key, dimension_key);
+        printf("\nStatus - %d\n", status);
     }
     free(filename);
 }
