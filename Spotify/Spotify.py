@@ -265,10 +265,7 @@ class Spotify:
     def Decision_tree_predictions(self):
         # Get ML Dataset
         self.Dataset = self.get_ML_data()
-        my_list = ['1','1','1','1','0','0','0','1','0','1','1','0','1','1','0','1','1','0','0','1','1','1','1','0','1','1','0','0','1','0','0','1','0','0','1','0','0','0','0','0','0','0','1','1','0','1','0','0','0','1']
-        self.Dataset["Ratings"] = my_list
-
-        #self.Dataset["Ratings"] = self.user_ratings
+        self.Dataset["Ratings"] = self.user_ratings
         
         # Organize features and labels
         drop_labels = ["Ratings"]
