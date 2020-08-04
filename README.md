@@ -1,2 +1,10 @@
 # My_Projects
-Personal Projects
+Personal Projects :
+-------------------
+-> Song Recommendation and Playlist Generator
+  - Creates a playlist on the user's account and uses a simple decision tree to fill the playlist with songs that the user may like based on their listening data. Data is gathered from the Spotify API.
+  
+-> Route Cipher Encryption/Decryption
+  - Encrypts a file by shifting all characters in the file a random amount of times along one of several "routes" within a matrix with random dimensions. The program    can then decrypt the text
+ 
+
