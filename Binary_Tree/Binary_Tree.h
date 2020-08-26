@@ -54,10 +54,14 @@ struct Binary_Tree{
     Node* get_root();
 
     // Traversal
-    // Returns tree values in level order
+    // Level Order
     vector<int> BFS(Node* current);
-    // Returns tree values in order
-    vector<int> inorder(Node* current);
+    // Inorder
+    vector<int> inorder(Node* current, vector<int> &inorder_values);
+    // Preorder
+    vector<int> preorder(Node* current, vector<int> &preorder_values);
+    // Postorder
+    vector<int> postorder(Node* current, vector<int> &postorder);
 
     // Insertion and Deletion
     // Returns balanced tree with inserted node
@@ -70,5 +74,8 @@ struct Binary_Tree{
 
     // Returns node with minimum value in tree
     Node* find_min(Node* current);
+
+    // Search
+    Node* search(int value);
 };
 

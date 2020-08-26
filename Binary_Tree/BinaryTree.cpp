@@ -41,6 +41,26 @@ Node* Binary_Tree::build_tree(const vector<int> &data, int start_index, int end_
 
 // Accessible Methods
 
+// Searches for and returns the node with the given value
+Node* Binary_Tree::search(int data){
+    // Temporary address holder
+    Node* current = root;
+    // Traverse until node with identical value found
+    while(data != current->get_value()){
+        if(current == NULL){
+            cout << "There is no node with this value.\n";
+            return NULL;
+        }
+        else if(data < current->get_value()){
+            current = current->left;
+        }
+        else{
+            current = current->right;
+        }
+    }
+    return current;
+}
+
 // Returns minimum node in tree
 Node* Binary_Tree::find_min(Node* current){
     Node* temp = current;
@@ -63,12 +83,10 @@ vector<int> Binary_Tree::BFS(Node* current){
     }
     // Push left child onto queue
     if(current->left != NULL){
-        cout << "Next left = Address : " << current->left << " Value : " << current->left->get_value() << '\n';
         next.push(current->left);
     }
     // Push right child onto queue
     if(current->right != NULL){
-        cout << "Next right = Address : " << current->right << " Value : " << current->right->get_value() << '\n';
         next.push(current->right);
     }
 
@@ -80,51 +98,89 @@ vector<int> Binary_Tree::BFS(Node* current){
 }
 
 // Inorder Traversal
-vector<int> Binary_Tree::inorder(Node* current){
-    // Vector to hold values in order
-    static vector<int> inorder_values = {};
+vector<int> Binary_Tree::inorder(Node* current, vector<int> &inorder_values){
     // Base case
     if(current == NULL){
         return inorder_values;
     }
     // Left
-    inorder(current->left);
+    inorder(current->left, inorder_values);
     // Push current value
     inorder_values.push_back(current->get_value());
     // Right
-    inorder(current->right);
-    
+    inorder(current->right, inorder_values);
+
     return inorder_values;
 }
 
-void Binary_Tree::print(Node* current, int current_height){
+// Preoder Traversal
+vector<int> Binary_Tree::preorder(Node* current, vector<int> &preorder_values){
+    // Base Case
+    if(current == NULL){
+        return preorder_values;
+    }
+    // Push current
+    preorder_values.push_back(current->get_value());
+    // Left
+    preorder(current->left, preorder_values);
+    // Right
+    preorder(current->right, preorder_values);
 
+    return preorder_values;
+}
+
+// Postorder Traversal
+vector<int> Binary_Tree::postorder(Node* current, vector<int> &postorder_values){
+    // Base Case
+    if(current == NULL){
+        return postorder_values;
+    }
+    // Left
+    postorder(current->left, postorder_values);
+    // Right
+    postorder(current->right, postorder_values);
+    // Current
+    postorder_values.push_back(current->get_value());
+
+    return postorder_values;
 }
 
 // Self-Balancing insertion
 Binary_Tree* Binary_Tree::balanced_insert(int new_val){
-    vector<int> inorder_values = inorder(root);
+    vector<int> inorder_values = {};
+    inorder_values = inorder(root, inorder_values);
     int i = 0;
     // Insert new value in order
     for(i = 0; i < inorder_values.size(); i++){
-        if(new_val > inorder_values[i]){
-            inorder_values.insert(inorder_values.begin(), new_val);
+        if(new_val < inorder_values[i]){
+            inorder_values.insert(inorder_values.begin() + i, new_val);
             break;
         }
-        else{
-            continue;
+        else if(new_val > inorder_values[i]){
+            if(i == (inorder_values.size() - 1)){
+                inorder_values.insert(inorder_values.begin() + i + 1, new_val);
+                break;
+            }
+            else{
+                continue;
+            }
+        }
+        else if(new_val == inorder_values[i]){
+            cout << "Value Already in Tree";
+            return this;
         }
     }
-    
     // Return balanced tree
     Binary_Tree* adjusted_tree = new Binary_Tree(inorder_values);
     return adjusted_tree;
 }
 
+// Self-Balancing Deletion
 Binary_Tree* Binary_Tree::balanced_delete(Node* &current, int removed_value){
     if(current == NULL){
         cout << "This number is not in the tree.\n";
-        vector<int> new_tree = inorder(root);
+        vector<int> new_tree = {};
+        new_tree = inorder(root, new_tree);
         Binary_Tree* adjusted_tree = new Binary_Tree(new_tree);
         return adjusted_tree;
     }
@@ -167,16 +223,15 @@ Binary_Tree* Binary_Tree::balanced_delete(Node* &current, int removed_value){
         }
     }
     // Balance tree and return
-    vector<int> new_tree = inorder(root);
-
-    int j = 0;
-    for(j = 0; j < new_tree.size(); j++){
-        cout << new_tree[j] << " ";
+    if(current->get_height() == max_height){
+        vector<int> new_tree = {};
+        new_tree = inorder(root, new_tree);
+        Binary_Tree* adjusted_tree = new Binary_Tree(new_tree);
+        return adjusted_tree;
     }
-    cout << '\n';
+    return NULL;
+}
 
-    cout << "Left BFS\n";
-    Binary_Tree* adjusted_tree = new Binary_Tree(new_tree);
-    return adjusted_tree;
+void Binary_Tree::print(Node* current, int current_height){
 
 }
