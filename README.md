@@ -1,6 +1,10 @@
 # My_Projects
 Personal Projects :
 -------------------
+
+-> Air Traffic Graph
+  - Graph Data Structure that contains data on all of the world's airports, airlines, and flight routes. The program can return any of the data based on user input and also can draw any airport or flight route on the map projection provided. All data was gathered from OpenFlight. 
+
 -> Song Recommendation and Playlist Generator
   - Creates a playlist on the user's account and uses a simple decision tree to fill the playlist with songs that the user may like based on their listening data. Data is gathered from the Spotify API.
   
