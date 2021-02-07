@@ -5,7 +5,6 @@
 #pragma once
 
 #include "../PNG/PNG.h"
-#include <list>
 #include <iostream>
 
 #include "ColorPicker.h"
@@ -14,24 +13,14 @@
 #include "Point.h"
 #include "Animation.h"
 
-using namespace cs225;
-/**
- * This class is used to do flood fill on an image.
- * One or more FloodFill operations will be added and executed in the order they
- * are added in. Each operation should flood-fill the entire image. Each operation
- * should have its own traversal method and color picker.
- */
 class FloodFilledImage {
 public:
-  FloodFilledImage(const PNG & png);
-  void addFloodFill(ImageTraversal & traversal, ColorPicker & colorPicker);
+  FloodFilledImage(PNG& png);
+  void addFloodFill(ImageTraversal* traversal);
   Animation animate(unsigned frameInterval);
   PNG get_image();
 
 private:
-	/** @todo [Part 2] */
-	/** add private members here*/
-    PNG image;
-    std::list<ColorPicker*> colors;
-    std::list<ImageTraversal*> traversal;
+    PNG& image;
+    std::vector<ImageTraversal*> traversal;
 };

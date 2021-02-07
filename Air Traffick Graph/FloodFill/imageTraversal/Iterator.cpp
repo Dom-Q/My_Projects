@@ -8,10 +8,13 @@
 
 #include "ImageTraversal.h"
 
-ImageTraversal::Iterator::Iterator(Point start, Point end, PNG& given, ColorPicker c, double intervals_) : image(given), color(c) {
+ImageTraversal::Iterator::Iterator(Point start, Point end, PNG& given, ColorPicker c, double intervals_, std::pair<double, double> sc, std::pair<double, double> ec) 
+                                  : image(given), color(c) {
     start_point = start;
     end_point = end;
     current_point = start;
+    start_coords = sc;
+    end_coords = ec;
     intervals = intervals_;
     sigma_01 = 0;
     sigma_02 = 0;
@@ -19,15 +22,16 @@ ImageTraversal::Iterator::Iterator(Point start, Point end, PNG& given, ColorPick
     lambda_naught = 0;
     current_interval = 0;
 
-    GC_coords(start, end);
+
+    GC_coords();
 }
 
-void ImageTraversal::Iterator::GC_coords(Point source, Point destination){
+void ImageTraversal::Iterator::GC_coords(){
     // Great Circle Route math for initial arc
-    double phi_1 = (image.y_to_lat(source.y)) * pi / 180;
-    double lambda_1 = (image.x_to_long(source.x)) * pi / 180;;
-    double phi_2 = (image.y_to_lat(destination.y)) * pi / 180;
-    double lambda_2 = (image.x_to_long(destination.x)) * pi / 180;
+    double phi_1 = (this->start_coords.first) * pi / 180;
+    double lambda_1 = (this->start_coords.second) * pi / 180;;
+    double phi_2 = (this->end_coords.first) * pi / 180;
+    double lambda_2 = (this->end_coords.second) * pi / 180;
 
     double lambda_12 = lambda_2 - lambda_1;
     if(lambda_12 > pi){
@@ -55,16 +59,10 @@ void ImageTraversal::Iterator::GC_coords(Point source, Point destination){
     horiz3 = cos(alpha_1);
     sigma_01 = atan2(vert3, horiz3);
     sigma_02 = sigma_01 + sigma_12;
-
-    std::cout << "Sigma_01 = " << sigma_01 << "\n";
-
     vert3 = sin(alpha_naught)*sin(sigma_01);
     horiz3 = cos(sigma_01);
     double lambda_01 = atan2(vert3, horiz3);
     lambda_naught = lambda_1 - lambda_01;
-
-    std::cout << "Lambda_naught = " << lambda_naught << "\n";
-
 }
 
 
@@ -78,7 +76,7 @@ bool is_valid(unsigned curr_x, unsigned curr_y, unsigned width, unsigned height)
     return false;
 }
 
-void check_end(const Point& start, Point& dest, Point ep){
+void ImageTraversal::Iterator::check_end(const Point& start, Point& dest, Point ep){
     // To the right or on same long
     if(dest.x >= start.x){
         if((ep.x >= start.x) && (ep.x <= dest.x)){
@@ -125,9 +123,11 @@ void check_end(const Point& start, Point& dest, Point ep){
 
 void ImageTraversal::Iterator::Bresenhams(const Point& ep){
     Point moving(**this);
-    std::cout << "Starting at (" << moving.x << "," << moving.y << ")\n";
-    std::cout << "Going to (" << ep.x << "," << ep.y << ")\n---------------\n";
-    std::cout << "Final destination at (" << end_point.x << "," << end_point.y << ")\n";
+   
+   /// std::cout << "Starting at (" << moving.x << "," << moving.y << ")\n";
+   /// std::cout << "Going to (" << ep.x << "," << ep.y << ")\n---------------\n";
+   /// std::cout << "Final destination at (" << end_point.x << "," << end_point.y << ")\n";
+    
     HSLAPixel& s_next_pixel = image.getPixel(moving.x, moving.y);
     HSLAPixel& s_above_pixel = image.getPixel(moving.x, moving.y-1);
     HSLAPixel& s_above_2 = image.getPixel(moving.x, moving.y-2);
@@ -162,7 +162,9 @@ void ImageTraversal::Iterator::Bresenhams(const Point& ep){
     else{
         ystep = 0;
     }
-    std::cout << "Pixel at (" << moving.x << "," << moving.y << ")\n";
+    
+    /// std::cout << "Pixel at (" << moving.x << "," << moving.y << ")\n";
+    
     // Move using Bresenhem's alg
     if(xdelta > ydelta){
         decision = 2*ydelta - xdelta;
@@ -213,12 +215,12 @@ void ImageTraversal::Iterator::Bresenhams(const Point& ep){
 }
 
 ImageTraversal::Iterator& ImageTraversal::Iterator::operator++() {
-    if(current_point == end_point || current_interval == intervals){
+    if(current_point == end_point || current_interval >= intervals){
         return *this;
     }
     std::pair<double, double> new_coords;
     
-    current_interval++;
+    this->current_interval++;
 
     // Great Circle Calculation for next point
     double sigma = sigma_01 + (current_interval / intervals) * (sigma_01 + sigma_02);
@@ -231,17 +233,11 @@ ImageTraversal::Iterator& ImageTraversal::Iterator::operator++() {
     horiz = cos(sigma);
     double lambda_new = atan2(vert, horiz) + lambda_naught;
 
-    std::cout << "Sigma = " << sigma*180 / pi << "\n";
-    std::cout << "Lambda_new = " << lambda_new*180 / pi << "\n";
-    std::cout << "phi_new = " << phi_new*180 / pi << "\n";
-
     new_coords.first = phi_new*180 / pi;
     new_coords.second = lambda_new*180 / pi;
 
-    double next_x = image.get_x_pixel(new_coords.second);
-    double next_y = image.get_y_pixel(new_coords.first);
-    
-    std::cout << "Next_x = " << next_x << "\n";
+    double next_x = image.get_x_pixel(new_coords.second, new_coords.first);
+    double next_y = image.get_y_pixel(new_coords.first, new_coords.second);
 
     // Border check
     if(next_x < 0){
@@ -273,7 +269,7 @@ ImageTraversal::Iterator& ImageTraversal::Iterator::operator++() {
     Point new_start(next_x, next_y);
 
     // Endpoint Check
-    check_end(**this, new_start, end_point);
+    this->check_end(**this, new_start, end_point);
 
     // Draw Line
     Bresenhams(new_start);
@@ -289,10 +285,9 @@ Point ImageTraversal::Iterator::operator*() {
 
 // Compare current point held by each iterator
 bool ImageTraversal::Iterator::operator!=(const ImageTraversal::Iterator &other) {
-    if(image == other.image){
-        if(current_point == other.current_point){
-            return false;
-        }
+    std::cout << "CI = " << this->current_interval << " TI = " << this->intervals <<"\n";
+    if(current_point == other.current_point || this->current_interval >= this->intervals){
+        return false;
     }
     return true;
 }

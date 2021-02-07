@@ -9,8 +9,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace cs225 {
-  class HSLAPixel {
+class HSLAPixel {
   public:
     double h; /**< Double for the hue of the pixel, in degrees [0, 360). */
     double s; /**< Double for the saturation of the pixel, [0, 1]. */
@@ -62,4 +61,3 @@ namespace cs225 {
    */
   std::ostream & operator<<(std::ostream & out, HSLAPixel const & pixel);
   std::stringstream & operator<<(std::stringstream & out, HSLAPixel const & pixel);
-}

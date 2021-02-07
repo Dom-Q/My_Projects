@@ -1,7 +1,5 @@
 #include "ColorPicker.h"
 
-using namespace cs225;
-
 ColorPicker::ColorPicker(int routes){
     routes_ = routes;
 }

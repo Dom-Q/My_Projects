@@ -1,18 +1,17 @@
 #include <cmath>
 
-namespace cs225 {
-  typedef struct {
+typedef struct {
     unsigned char r, g, b, a; // [0, 255]
-  } rgbaColor;
+} rgbaColor;
 
-  typedef struct {
+typedef struct {
     double h;  // angle in degrees, [0, 360]
     double s;  // [0, 1]
     double l;  // [0, 1]
     double a;  // [0, 1]
-  } hslaColor;
+} hslaColor;
 
-  static hslaColor rgb2hsl(const rgbaColor & rgb) {
+static hslaColor rgb2hsl(const rgbaColor & rgb) {
     hslaColor hsl;
     double r, g, b, min, max, chroma;
 
@@ -62,9 +61,9 @@ namespace cs225 {
 
     // Return result
     return hsl;
-  }
+}
 
-  static rgbaColor hsl2rgb(const hslaColor & hsl) {
+static rgbaColor hsl2rgb(const hslaColor & hsl) {
     rgbaColor rgb;
 
     // HSV Calculations -- formulas sourced from https://en.wikipedia.org/wiki/HSL_and_HSV
@@ -91,5 +90,4 @@ namespace cs225 {
 
     rgb.a = round(hsl.a * 255);
     return rgb;
-  }
 }

@@ -1,15 +1,3 @@
-/**
- * @file animation.cpp
- *
- * Implementation of the animation class.
- *
- * @author Wade Fagen-Ulmschneider
- * @date Fall 2017
- *  
- * @author Jack Toole
- * @date Fall 2011
- */
-
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <iostream>
@@ -19,7 +7,6 @@
 #include "../PNG/PNG.h"
 
 using namespace std;
-using namespace cs225;
 
 template <typename T>
 inline string Animation::to_string(const T& value) {

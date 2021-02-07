@@ -5,8 +5,6 @@
 #include "../PNG/HSLAPixel.h"
 #include "Point.h"
 
-using namespace cs225;
-
 class ColorPicker{
     public:
     HSLAPixel getColor();
