@@ -167,7 +167,7 @@ Graph::Graph(std::string airport_file, std::string route_file, std::string airli
     }
 
     // Fill Airline Data
-    // Pairs airline ID to the name of the airline
+    // Maps airline ID to the name of the airline
     std::ifstream airline_data(airline_file);
     if(airline_data.is_open()){
         std::string curr_elem;
@@ -438,6 +438,52 @@ std::string Graph::get_airline_by_ID(std::string id){
 
 std::vector<Route> Graph::get_adjacent_by_ID(std::string id){
     return airports_[id].second;
+}
+
+int Graph::num_routes(){
+    return (int)routes_.size();
+}
+
+int Graph::num_airports(){
+    return (int)airports_.size();
+}
+
+int Graph::num_airlines(){
+    return (int)airlines_.size();
+}
+
+std::string Graph::find_airline(std::string name){
+    std::unordered_map<std::string, std::string>::iterator I = airlines_.begin();
+    while(I != airlines_.end()){
+        if((*I).second == name){
+            return (*I).first;
+        }
+        I++;
+    }
+    return "";
+}
+
+std::string Graph::find_airport(std::string name){
+    std::unordered_map<std::string, std::pair<Airport, std::vector<Route>>>::iterator I = airports_.begin();
+    while(I != airports_.end()){
+        if((*I).second.first.get_name().find(name) != std::string::npos){
+            return (*I).first;
+        }
+        I++;
+    }
+    return "";
+}
+
+std::vector<std::string> Graph::find_by_city(std::string city){
+    std::unordered_map<std::string, std::pair<Airport, std::vector<Route>>>::iterator I = airports_.begin();
+    std::vector<std::string> ids;
+    while(I != airports_.end()){
+        if((*I).second.first.get_location().first == city){
+            ids.push_back((*I).second.first.get_OpenFlightID());
+        }
+        I++;
+    }
+    return ids;
 }
 
 const Airport& Graph::get_airport_by_name(std::string n){

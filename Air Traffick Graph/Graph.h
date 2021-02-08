@@ -39,14 +39,22 @@ class Graph{
         const Airport& get_airport_by_ID(std::string ID);
         std::string get_airline_by_ID(std::string id);
         std::vector<Route> get_adjacent_by_ID(std::string id);
-        const Airport& get_airport_by_name(std::string n);
+
+        int num_routes();
+        int num_airports();
+        int num_airlines();
+
+        // Find in Graph by name
+        std::string find_airline(std::string name);
+        std::string find_airport(std::string name);
+        std::vector<std::string> find_by_city(std::string city);
 
         // Draw routes
         void draw_routes(std::string airport_ID);
         void draw_specific(const Airport& s, const Airport& d);
 
         Point map_to_pixel(const Airport& port);
-        void plot_point(double latitude, double longitude, bool is_source);
+        void plot_point(double x, double y, bool is_source);
 
         PNG get_image();
         // TESTING
@@ -54,4 +62,5 @@ class Graph{
         std::unordered_map<std::string, std::string>& get_airlines();
         std::vector<Route>& get_routes();
         std::string get_rand_airportID();
+        const Airport& get_airport_by_name(std::string n);
 };
