@@ -12,6 +12,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <cmath>
 
@@ -44,10 +45,12 @@ class Graph{
         int num_airports();
         int num_airlines();
 
-        // Find in Graph by name
         std::string find_airline(std::string name);
         std::string find_airport(std::string name);
         std::vector<std::string> find_by_city(std::string city);
+        std::vector<std::string> find_by_country(std::string country);
+
+        std::vector<std::string> find_airlines_by_area(std::string loc);
 
         // Draw routes
         void draw_routes(std::string airport_ID);
@@ -63,4 +66,5 @@ class Graph{
         std::vector<Route>& get_routes();
         std::string get_rand_airportID();
         const Airport& get_airport_by_name(std::string n);
+        std::vector<std::string> airlines_by_route(const Airport& source, const Airport& dest);
 };

@@ -1,5 +1,5 @@
 map : Point.o HSLAPixel.o RGB_HSL.o lodepng.o PNG.o Airport.o Route.o ColorPicker.o ImageTraversal.o Iterator.o Animation.o FloodFilledImage.o Graph.o main.o
-	g++ main.o Graph.o Airport.o Route.o PNG.O HSLAPixel.o FloodFilledImage.o ColorPicker.o Point.o RGB_HSL.o Animation.o ImageTraversal.o Iterator.o lodepng.o -lc++abi -lm -o map
+	g++ main.o  Graph.o Airport.o Route.o PNG.O HSLAPixel.o FloodFilledImage.o ColorPicker.o Point.o RGB_HSL.o Animation.o ImageTraversal.o Iterator.o lodepng.o -lc++abi -lm -o map
 
 test : Point.o HSLAPixel.o RGB_HSL.o lodepng.o PNG.o Airport.o Route.o ColorPicker.o ImageTraversal.o Iterator.o Animation.o FloodFilledImage.o Graph.o test.o
 	g++ test.o Graph.o Airport.o Route.o PNG.O HSLAPixel.o FloodFilledImage.o ColorPicker.o Point.o RGB_HSL.o Animation.o ImageTraversal.o Iterator.o lodepng.o -lc++abi -lm -o test

@@ -7,6 +7,7 @@ int main(){
     Graph G("Data/Airports.txt", "Data/Routes.txt", "Data/Airlines.txt", map);
 
     // Random Testing
+    /*
     std::string arr[2] = {""};
     int i = 0;
     for(i = 0; i < 2; i++){
@@ -24,12 +25,11 @@ int main(){
         // G.draw_routes((G.get_airport_by_name(arr[i])).get_OpenFlightID());
     }
     G.draw_specific(G.get_airport_by_name(arr[0]), G.get_airport_by_name(arr[1]));
+    */
 
    /*
+
     // Selective Testing
-
-    // Need to test southern hemisphere
-
     std::string arr[55] = {"Chicago O'Hare International Airport", 
                           "Domodedovo International Airport", 
                           "Leicester Airport", 
@@ -111,6 +111,7 @@ int main(){
 
     /*
 
+    // Graph Testing
     std::unordered_map<std::string, std::pair<Airport, std::vector<Route>>>& airports = G.get_airports();
     //std::unordered_map<std::string, std::string>& airlines = G.get_airlines();
     //std::vector<Route>& routes = G.get_routes();
@@ -156,6 +157,29 @@ int main(){
     ++pen;
     ++pen;
     */
+
+   // Test - does route database duplicate routes for different airlines
+   // Conclusion - yes
+   srand(time(NULL));
+   std::vector<Route> routes = G.get_routes();
+   int num_routes = (int)routes.size();
+   int route_num = rand() % num_routes;
+   const Airport& rand_source = routes[route_num].get_source();;
+   const Airport& rand_dest = routes[route_num].get_destination();
+
+   int i = 0;
+   int num_duplicates = 0;
+   for(i = 0; i < num_routes; i++){
+       Route curr_route = routes[i];
+       if(curr_route.get_source().get_name() == rand_source.get_name() && curr_route.get_destination().get_name() == rand_dest.get_name()){
+          std::cout << "Source: " << rand_source.get_name() << "\nDest: " << rand_dest.get_name() << 
+           "\nAirline: " << G.get_airline_by_ID(routes[i].get_airline_ID()) << "\n\n";
+           num_duplicates++;
+       }
+   }
+
+    std::cout << "Total routes = " << num_duplicates << "\n";
+
     PNG drawn = G.get_image();
     drawn.writeToFile("World_Routes.PNG");
 

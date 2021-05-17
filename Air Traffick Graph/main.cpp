@@ -1,5 +1,4 @@
 #include "Graph.h"
-#include "helpers.cpp"
 #include <climits>
 
 int main(){
@@ -70,6 +69,9 @@ int main(){
                 dest_id = G.find_airport(dest_name);
             }
 
+            source_name = (G.get_airport_by_ID(source_id)).get_name();
+            dest_name = (G.get_airport_by_ID(dest_id)).get_name();
+
             switch(routes_option){
                 // Connectivity
                 case 1: {
@@ -79,12 +81,12 @@ int main(){
                     int i = 0;
                     for(i = 0; i < length; i++){
                         if(adj[i].get_destination().get_OpenFlightID() == dest_id){
-                            std::cout << "\nThere is a flight from " << source_name << " to " << dest_name << "!\n";
+                            std::cout << "\nThere is a route connecting " << source_name << " to " << dest_name << "!\n";
+                            break;
                         }
-                        break;
                     }
                     if(i == length){
-                        std::cout << "There is no flight from " << source_name << " to " << dest_name << ".\n";
+                        std::cout << "There is no route from " << source_name << " to " << dest_name << ".\n";
                     }
                     break;
                 }
@@ -100,6 +102,7 @@ int main(){
                     for(i = 0; i < length; i++){
                         if(adj[i].get_destination().get_OpenFlightID() == dest_id){
                             std::cout << "There is an active route from " << source_name << " to " << dest_name << "!\n";
+                            std::cout << "The path has been drawn to the file 'World_Routes.PNG\n";
                             break;
                         }
                     }   
@@ -130,8 +133,8 @@ int main(){
                     break;
                 }
             }
+            break;
         }
-        break;
         
         // Airport Case
         case 2: {
@@ -177,8 +180,28 @@ int main(){
                 // Locate Airport 
                 case 2: {
                     // Print city/state and draw on map
-                    
+                    // Get airport name
+                    std::string ap_name;
+                    std::string ap_id = "";
+                    bool first = true;
+                    while(ap_id == ""){
+                        if(!first) std::cout << "There is no airport with that name.\n";
+                        else first = false;
 
+                        std::cout << "Enter the name of the airport\n";
+                        char junk; scanf("%c", &junk);
+                        std::getline(cin, ap_name);
+                        ap_id = G.find_airport(ap_name);
+                    }
+                    Airport current = G.get_airport_by_ID(ap_id);
+                    double lat = current.get_coords().first;
+                    double longit = current.get_coords().second;
+                    G.plot_point(map.get_x_pixel(longit, lat), map.get_y_pixel(lat, longit), true);
+                    G.get_image().writeToFile("World_Routes.PNG");
+                    std::cout << "Airport plotted on World_Routes.PNG\n";
+                    std::pair<std::string, std::string> loc = current.get_location();
+                    std::cout << current.get_name() << " is located in " << loc.first << ", " << loc.second << "\n";
+                    break;
                 }
 
                 // Find Airports in an area
@@ -186,17 +209,15 @@ int main(){
                     std::cout <<"\n1. Search by city\n"
                                   "2. Search by country\n";
                     int type = 0;
+                    char junk; scanf("%c", &junk);
                     std::cin >> type;
                     type--;
                     std::string location;
                     // City
                     if(!type){
                         std::cout << "Enter the name of a city\n";
-                        char junk; scanf("%c", &junk);
+                        scanf("%c", &junk);
                         std::getline(cin, location);
-                        
-                        std::cout << "\n" << location << "\n";
-
                         std::vector<std::string> ids = G.find_by_city(location);
                         if(ids.empty()){
                             "There are no airports found in a city with that name\n";
@@ -216,7 +237,27 @@ int main(){
                     }
                     // Country
                     else{
+                        std::cout << "Enter the name of a country\n";
+                        scanf("%c", &junk);
+                        std::getline(cin, location);
 
+                        std::vector<std::string> ids = G.find_by_country(location);
+                        if(ids.empty()){
+                            "There are no airports found in a city with that name\n";
+                            break;
+                        }
+                        int num_ids = (int)ids.size();
+
+                        std::cout << "There are " << num_ids << " airports in " << location << ":\n";
+                        int i = 0;
+                        for(i = 0; i < num_ids; i++){
+                            const Airport& current = G.get_airport_by_ID(ids[i]);
+                            int xp = map.get_x_pixel(current.get_coords().second, current.get_coords().first);
+                            int yp = map.get_y_pixel(current.get_coords().first, current.get_coords().second);
+                            G.plot_point(xp, yp, true);
+                            std::cout << i + 1 << ". " << current.get_name() << "\n"; 
+                        }
+                        G.get_image().writeToFile("World_Routes.PNG");
                     }
                     break;
                 }
@@ -226,14 +267,14 @@ int main(){
                     break;
                 }
             }         
-
+            break;
         }
         break;
         
         // Airline Case
         case 3: {
             int num_airlines = G.num_airlines();
-            std::cout << "\nWhat would you like to know about the world's " << num_airlines <<  " airlnes?\n\n";
+            std::cout << "\nWhat would you like to know about the world's " << num_airlines <<  " airlines?\n\n";
             std::cout <<"1. Find airlines at specific airport\n"
                         "2. Find airline on a specific route\n"
                         "3. Find airlnes in a specific location\n";
@@ -243,17 +284,133 @@ int main(){
             switch(airline_option) {
                 // Airlines at an airport -- (all and specific??)
                 case 1: {
+                    // Get airport name
+                    std::string ap_name;
+                    std::string ap_id = "";
+                    bool first = true;
+                    while(ap_id == ""){
+                        if(!first) std::cout << "There is no airport with that name.\n";
+                        else first = false;
 
+                        std::cout << "Enter the name of the airport\n";
+                        char junk; scanf("%c", &junk);
+                        std::getline(cin, ap_name);
+                        ap_id = G.find_airport(ap_name);
+                    }
+                    std::cout << "\nAre you looking for a specific airline that flies at this airport?\n"
+                                   "If yes, type the name of the airline. If no, press enter (twice)\n";
+                    std::string airline_name = "";
+                    char junk; scanf("%c", &junk);
+                    std::getline(cin, airline_name);
+                    // No specified airport
+                    if(airline_name == ""){
+                        std::vector<Route> dests = G.get_adjacent_by_ID(ap_id);
+                        int i = 0;
+                        int length = (int)dests.size();
+                        std::unordered_set<std::string> found_airlines;
+                        int num_planes = 0;
+                        for(i = 0; i < length; i++){
+                            std::string curr_line = G.get_airline_by_ID(dests[i].get_airline_ID());
+                            if(!found_airlines.count(curr_line)){
+                                std::cout << num_planes + 1 << ". " << curr_line << "\n";
+                                num_planes++;
+                                found_airlines.insert(curr_line);
+                            }
+                        }
+                    }
+                    // Specified airline
+                    else{
+                        bool first = true;
+                        std::string al_id = "";
+                        while(al_id == ""){
+                            if(!first){
+                              std::cout << "There is no ariline with that name.\n";  
+                              std::cout << "Enter the name of the airline\n";
+                            } 
+                            else first = false;
+                            char junk; scanf("%c", &junk);
+                            std::getline(cin, ap_name);
+                            ap_id = G.find_airport(ap_name);
+                        }
+                        std::vector<Route> dests = G.get_adjacent_by_ID(ap_id);
+                        int i = 0;
+                        int length = (int)dests.size();
+                        for(i = 0; i < length; i++){
+                            std::string curr_airline = dests[i].get_airline_ID();
+                            if(curr_airline == al_id){
+                                std::cout << airline_name << " operates at " << ap_name << "\n";
+                            }
+                            break;
+                        }
+                        if(i == length) std::cout << airline_name << " does not operate at " << ap_name << "\n";
+                    } 
+                    break;
                 }
 
-                // Airlines tjat fly specific route
+                // Airlines that fly specific route
+                // After test: multiple of same route stored in database for separate airlines
                 case 2: {
+                    bool first = true;
+                    std::string ap_id = "";
+                    std::string ap_name;
 
+                    while(ap_id == ""){
+                        if(!first) std::cout << "There is no airport with that name.\n";
+                        else first = false;
+
+                        std::cout << "Type the name of the source airport:\n";
+                        char junk; scanf("%c", &junk);
+                        std::getline(cin, ap_name);
+                        ap_id = G.find_airport(ap_name);
+                    }
+                    const Airport& route_source = G.get_airport_by_ID(ap_id);
+                    ap_id = "";
+                    ap_name = "";
+                    while(ap_id == ""){
+                        if(!first) std::cout << "There is no airport with that name.\n";
+                        else first = false;
+
+                        std::cout << "Type the name of the destination airport:\n";
+                        char junk; scanf("%c", &junk);
+                        std::getline(cin, ap_name);
+                        ap_id = G.find_airport(ap_name);
+                    }
+                    const Airport& route_dest = G.get_airport_by_ID(ap_id);
+
+                    std::vector<std::string> found_airlines = G.airlines_by_route(route_source, route_dest);
+                    int num_found = (int)found_airlines.size();
+                    int i = 0;
+
+                    if(!num_found) std::cout << "There are no airlines that fly between these airports.\n";
+                    else{
+                        std::cout << "Airlines that fly from " << route_source.get_name() << " to " << route_dest.get_name() << ":\n";
+                        for(i = 0; i < num_found; i++){
+                            std::cout << "/n" << i << ". " << found_airlines[i] << "\n";
+                        }
+                    }
+                    break;
                 }
 
                 // Airline based on location
                 case 3: {
+                    std::string location_name;
+                    std::cout << "Enter the name of a city or country\n";
+                    char junk; scanf("%c", &junk);
+                    std::getline(std::cin, location_name);
+                    std::vector<std::string> found_airlines = G.find_airlines_by_area(location_name);
 
+                    if(found_airlines.empty()){
+                        std::cout << "No airlines were found at the location you entered.\n";
+                        break;
+                    }
+
+                    int num_found = (int)found_airlines.size();
+                    int i = 0;
+                    std::cout << "There are " << num_found << " airlines that fly out of " << location_name << ":\n";
+                    for(i = 0; i < num_found; i++){
+                        std::cout << i+1 << ". " << found_airlines[i] << "\n";
+                    }
+                    break;
                 }
 
                 default: {
@@ -261,24 +418,8 @@ int main(){
                     break;
                 }
             }
-
-            // Get airline name from user
-            std::string airline_ID = "";
-            bool first = true;
-            while(airline_ID == ""){
-                if(!first) std::cout << "There is no active airline with that name.\n";
-                else first = false;
-
-                std::string airline_name;
-                std::cout << "Type the name of an airline\n";
-                char junk; scanf("%c", &junk);
-                getline(std::cin, airline_name);
-                
-                std::string airline_ID = G.find_airline(airline_name);
-            }
-
+            break;
         }
-        break;
 
         default:
             break;

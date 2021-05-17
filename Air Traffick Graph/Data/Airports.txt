@@ -93,7 +93,7 @@
 93,"Montreal International (Mirabel) Airport","Montreal","Canada","YMX","CYMX",45.679501,-74.038696,270,-5,"A","America/Toronto","airport","OurAirports"
 94,"Natashquan Airport","Natashquan","Canada","YNA","CYNA",50.189998626708984,-61.78919982910156,39,-5,"A","America/Toronto","airport","OurAirports"
 95,"Ottawa / Gatineau Airport","Gatineau","Canada","YND","CYND",45.521701812699995,-75.5635986328,211,-5,"A","America/Toronto","airport","OurAirports"
-96,"Matagami Airport","Matagami","Canada","YNM","CYNM",49.76169967651367,-77.80280303955078,918,-5,"A","America/Toronto","airport","OurAirports"
+96,"ost","Matagami","Canada","YNM","CYNM",49.76169967651367,-77.80280303955078,918,-5,"A","America/Toronto","airport","OurAirports"
 97,"Old Crow Airport","Old Crow","Canada","YOC","CYOC",67.57060241699219,-139.83900451660156,824,-8,"A","America/Vancouver","airport","OurAirports"
 98,"CFB Cold Lake","Cold Lake","Canada","YOD","CYOD",54.404998779296875,-110.27899932861328,1775,-7,"A","America/Edmonton","airport","OurAirports"
 99,"High Level Airport","High Level","Canada","YOJ","CYOJ",58.62139892578125,-117.16500091552734,1110,-7,"A","America/Edmonton","airport","OurAirports"

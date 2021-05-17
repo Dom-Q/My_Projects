@@ -21,6 +21,7 @@ class ImageTraversal {
 
             void GC_coords();
             void Bresenhams(const Point& ep);
+            double calc_length();
 
         private:
             void check_end(const Point& start, Point& dest, Point ep);
@@ -35,6 +36,7 @@ class ImageTraversal {
             double intervals;
             double sigma_01;
             double sigma_02;
+            double sigma_12;
             double alpha_naught;
             double lambda_naught;
             double current_interval;

@@ -52,7 +52,7 @@ void ImageTraversal::Iterator::GC_coords(){
 
     double vert3 = sqrt((vert*vert) + (horiz*horiz));
     double horiz3 = sin(phi_1)*sin(phi_2) + cos(phi_1)*cos(phi_2)*cos(lambda_2 - lambda_1);
-    double sigma_12 = atan2(vert3, horiz3); // in radians
+    sigma_12 = atan2(vert3, horiz3); // in radians
 
     // Waypoint math
     vert3 = tan(phi_1);
@@ -214,6 +214,7 @@ void ImageTraversal::Iterator::Bresenhams(const Point& ep){
     return;
 }
 
+// Draws GCR by drawing a Brenham lines of lenght 'interval' based on the current pixel location stored
 ImageTraversal::Iterator& ImageTraversal::Iterator::operator++() {
     if(current_point == end_point || current_interval >= intervals){
         return *this;
@@ -223,12 +224,15 @@ ImageTraversal::Iterator& ImageTraversal::Iterator::operator++() {
     this->current_interval++;
 
     // Great Circle Calculation for next point
+
+    // Calculate new latitude
     double sigma = sigma_01 + (current_interval / intervals) * (sigma_01 + sigma_02);
     double vert = cos(alpha_naught)*sin(sigma);
     double horiz = (cos(sigma)*cos(sigma)) + (sin(alpha_naught)*sin(alpha_naught)*sin(sigma)*sin(sigma));
     horiz = sqrt(horiz);
     double phi_new = atan2(vert, horiz);
 
+    // Calculate new longitude
     vert = sin(alpha_naught)*sin(sigma);
     horiz = cos(sigma);
     double lambda_new = atan2(vert, horiz) + lambda_naught;
@@ -278,6 +282,9 @@ ImageTraversal::Iterator& ImageTraversal::Iterator::operator++() {
     return *this;
 }
 
+double ImageTraversal::Iterator::calc_length(){
+    return 3959*sigma_12;
+}
 // Dereference Current Point
 Point ImageTraversal::Iterator::operator*() {
   return current_point;
@@ -285,7 +292,6 @@ Point ImageTraversal::Iterator::operator*() {
 
 // Compare current point held by each iterator
 bool ImageTraversal::Iterator::operator!=(const ImageTraversal::Iterator &other) {
-    std::cout << "CI = " << this->current_interval << " TI = " << this->intervals <<"\n";
     if(current_point == other.current_point || this->current_interval >= this->intervals){
         return false;
     }

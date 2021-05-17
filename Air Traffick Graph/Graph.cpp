@@ -45,6 +45,8 @@ Graph::Graph(std::string airport_file, std::string route_file, std::string airli
             std::getline(airport_data, curr_airport);
             // Parse Line as string
             while(reads < 7){
+                // Some string formatting, quotes in the dataset mess up parsing
+                // Determine current section of line and find end delimeter to know when to stop reading
                 if(curr_airport[start_index] == '\"'){
                     is_string = true;
                     delim_index = curr_airport.find('\"', start_index + 1);
@@ -55,6 +57,8 @@ Graph::Graph(std::string airport_file, std::string route_file, std::string airli
                 else{
                     delim_index = curr_airport.find(",", start_index);
                 }
+                // Check if current section is of data we want
+                // If desirable, store the current data its respective map index
                 if(var_names.count(headers[i])){
                     reads++;
                     std::string value = "";
@@ -344,6 +348,7 @@ void Graph::plot_point(double x, double y, bool is_source){
     return;
 }
 
+// Draws outgoing routes from a specified airport
 void Graph::draw_routes(std::string airport_ID){
     // Acquire adjacent airports
     const Airport& source = get_airport_by_ID(airport_ID);
@@ -400,6 +405,7 @@ void Graph::draw_routes(std::string airport_ID){
     animation_.write("Map.gif");
 }
 
+// Plots a specific route
 void Graph::draw_specific(const Airport& s, const Airport& d){
     // Convert and plot source
     double source_x = world_map_.get_x_pixel(s.get_coords().second, s.get_coords().first);
@@ -428,6 +434,7 @@ void Graph::draw_specific(const Airport& s, const Airport& d){
     delete curr_route;
 }
 
+// Getters
 const Airport& Graph::get_airport_by_ID(std::string ID) {
     return airports_[ID].first;
 }
@@ -452,10 +459,12 @@ int Graph::num_airlines(){
     return (int)airlines_.size();
 }
 
+// Search for airline by name
+// Return ID (if found)
 std::string Graph::find_airline(std::string name){
     std::unordered_map<std::string, std::string>::iterator I = airlines_.begin();
     while(I != airlines_.end()){
-        if((*I).second == name){
+        if((*I).second.find(name) != std::string::npos){
             return (*I).first;
         }
         I++;
@@ -463,6 +472,8 @@ std::string Graph::find_airline(std::string name){
     return "";
 }
 
+// Search for airport by name
+// Return ID if found
 std::string Graph::find_airport(std::string name){
     std::unordered_map<std::string, std::pair<Airport, std::vector<Route>>>::iterator I = airports_.begin();
     while(I != airports_.end()){
@@ -474,18 +485,36 @@ std::string Graph::find_airport(std::string name){
     return "";
 }
 
+// Search for airports by city name
+// Return list IDs of found airports
 std::vector<std::string> Graph::find_by_city(std::string city){
     std::unordered_map<std::string, std::pair<Airport, std::vector<Route>>>::iterator I = airports_.begin();
     std::vector<std::string> ids;
     while(I != airports_.end()){
         if((*I).second.first.get_location().first == city){
-            ids.push_back((*I).second.first.get_OpenFlightID());
+            ids.push_back((*I).first);
         }
         I++;
     }
     return ids;
 }
 
+// Search for airports by country name
+// Return list of IDs of found airports
+std::vector<std::string> Graph::find_by_country(std::string country){
+    std::unordered_map<std::string, std::pair<Airport, std::vector<Route>>>::iterator I = airports_.begin();
+    std::vector<std::string> ids;
+    while(I != airports_.end()){
+        if((*I).second.first.get_location().second.find(country) != std::string::npos){
+            ids.push_back((*I).first);
+        }
+        I++;
+    }
+    return ids;
+}
+
+// Search for airport by name
+// Return reference to airport with given name
 const Airport& Graph::get_airport_by_name(std::string n){
     std::unordered_map<std::string, std::pair<Airport, std::vector<Route>>>::iterator I = airports_.begin();
     while(I != airports_.end()){
@@ -498,6 +527,35 @@ const Airport& Graph::get_airport_by_name(std::string n){
     return {};
 }
 
+// Search for airlines in a specific location
+// Return list of airline names if found
+std::vector<std::string> Graph::find_airlines_by_area(std::string loc){
+    std::unordered_map<std::string, std::pair<Airport, std::vector<Route>>>::iterator I = airports_.begin();
+    std::vector<std::string> found_airlines = {};
+    std::unordered_set<std::string> already_found;
+
+    while(I != airports_.end()){
+        std::string curr_city = (*I).second.first.get_location().first;
+        std::string curr_country = (*I).second.first.get_location().second;
+        if(loc == curr_city || loc == curr_country){
+            std::vector<Route>& curr_routes = (*I).second.second;
+            int num_routes = (int)curr_routes.size(); 
+            int i = 0;
+            for(i = 0; i < num_routes; i++){
+                if(!already_found.count(curr_routes[i].get_airline_ID()) && curr_routes[i].get_airline_ID() != "" && curr_routes[i].get_airline_ID() != " "){
+                    already_found.insert(curr_routes[i].get_airline_ID());
+                    found_airlines.push_back(get_airline_by_ID(curr_routes[i].get_airline_ID()));
+                }
+            }
+        }
+        I++;
+    }
+
+    return found_airlines;
+}
+
+// Determines location of an aiport on PNG based on coordinates
+// Returns Point object containing mapped pixels
 Point Graph::map_to_pixel(const Airport& port){
     double x = world_map_.get_x_pixel(port.get_coords().second, port.get_coords().first);
     double y = world_map_.get_y_pixel(port.get_coords().first, port.get_coords().second);
@@ -508,7 +566,6 @@ Point Graph::map_to_pixel(const Airport& port){
 
 
 // TESTING
-
 std::unordered_map<std::string, std::pair<Airport, std::vector<Route>>>& Graph::get_airports(){
     return airports_;
 }
@@ -537,6 +594,20 @@ std::string Graph::get_rand_airportID(){
         adj = (int)(*it).second.second.size();
     }
     return (*it).first;
+}
+
+std::vector<std::string> Graph::airlines_by_route(const Airport& source, const Airport& dest){
+    std::vector<Route>::iterator I = routes_.begin();
+    std::vector<std::string> output_names;
+    while(I != routes_.end()){
+        const Airport& curr_source = (*I).get_source();
+        const Airport& curr_dest = (*I).get_destination();
+
+        if(curr_source == source && curr_dest == dest){
+            output_names.push_back(get_airline_by_ID((*I).get_airline_ID()));
+        }
+    }
+    return output_names;
 }
 
 PNG Graph::get_image(){
