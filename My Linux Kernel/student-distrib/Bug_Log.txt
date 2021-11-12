@@ -1,0 +1,56 @@
+MP 3.1 Bug Log
+---------------
+
+1.) 
+    Error: Keyboard sending same char 
+    Duration: 1-2 Hours
+    Solution: Reading value from wrong port, initially thought we needed to read from PIC port but actually needed to read from 0x60
+
+2.) 
+    Error: Keyboard unable to send multiple charachters
+    Duration: 1-2 Hours
+    Solution: Same as above
+
+3.)
+    Error: Keyboard printing random 'c' charachter in between typed charachters
+    Duration: 20-30 min
+    Solution: Key codes being received that were out of bounds of char array; prevent processor from reading these in
+
+4.) 
+    Error: Protection fault when typing multiple keys simultaneously 
+    Duration: Unsolved
+    Suspected Solution: RTC issue
+
+5.)
+    Error: RTC crashing kernel
+    Duration: 1-2 Hours
+    Solution: Send_EOI implemented incorrectly
+
+
+MP 3.2 Bug Log
+---------------
+
+1.)
+    Bug:		After paging is initialised nothing gets printed on the screen
+    Origin:		Mistakingly shofting a Page Table Entry base address right by 12 bits
+    Solution:	Remove the unnessesary shift
+    Time:		2 hours
+
+2.) 
+    Bug:		Receiving page fault once RTC interrupt is received while in rtc_read
+    Origin:		Missing assembly linkage
+    Solution:	Added the needed assmbly code, specifically to push and pop registers
+    Time:		2 hours
+
+3.)
+    Bug:		Line doesn't wrap around and continues on the same line after running out of space
+    Origin:		Not implemented
+    Solution:	Added a code to go to a new line after 80 characters per line
+    Time:		1 hour
+
+4.)
+    Bug:		Page Fault when using movemem to move video memory
+    Origin:		Using an incorrect variable for destination, which was below 0x8B000, resulting 
+		        in a page fault
+    Solution:	Redefine a variable and change its type to match the input argument for more robustness
+    Time:		30 min
