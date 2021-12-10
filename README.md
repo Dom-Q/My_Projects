@@ -1,6 +1,8 @@
 # My_Projects
 Personal Projects :
 -------------------
+-> Linux-style Kernel
+  - Fully functional OS complete with filesystem, virtual memory, context switching and scheduling, system calls, exceptions, and interrupts.
 
 -> Air Traffic Graph
   - Graph Data Structure that contains data on all of the world's airports, airlines, and flight routes. The program can return any of the data based on user input and also can draw any airport or flight route on the map projection provided. All data was gathered from OpenFlight. 
