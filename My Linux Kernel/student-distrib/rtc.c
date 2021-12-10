@@ -1,13 +1,14 @@
 #include "lib.h"
 #include "rtc.h"
 #include "i8259.h"
-
 #include "types.h"
 #include "x86_desc.h"
 #include "paging.h"
+#include "scheduling.h"
 
 // set rtc and initialize values
 volatile int flag;
+volatile int freqs[3];
 
 void init_rtc()
 {
@@ -42,9 +43,16 @@ void handle_rtc()
  */
 int32_t rtc_open(const uint8_t *filename)
 {
-    int16_t frequency = 2; //2Hz
-    int16_t buf[] = {frequency};
-    rtc_write(0, buf, 128);
+    //int16_t frequency = 1024; //1024Hz
+    freqs[running_shell] = 2;
+
+    cli();
+    outb(0x8A, 0x70);        //set index to register A, disable NMI
+    char prev = inb(0x71);   //get initial value of register A
+    outb(0x8A, 0x70);        //reset index to A
+    outb(0x71, prev | 0x40); //write only our rate to A. Note, rate is the bottom 4 bits.
+    sti();
+
     return 0;
 }
 
@@ -58,9 +66,14 @@ int32_t rtc_open(const uint8_t *filename)
  */
 int32_t rtc_read(int32_t fd, void *buf, int32_t nbytes)
 {
-    flag = 0;
-    while (!flag)
+    int cnt = (1024 / freqs[running_shell]);
+    int i;
+    for (i = 0; i < cnt; i++)
     {
+        flag = 0;
+        while (!flag)
+        {
+        }
     }
     return 0;
 }
@@ -76,7 +89,7 @@ int32_t rtc_read(int32_t fd, void *buf, int32_t nbytes)
  */
 int32_t rtc_write(int32_t fd, const void *buf, int32_t nbytes)
 {
-    uint16_t* freq = (uint16_t*)buf;
+    uint16_t *freq = (uint16_t *)buf;
 
     //check if frequency is a power of 2
     if (!(freq[0] && (!(freq[0] & (freq[0] - 1)))))
@@ -101,14 +114,7 @@ int32_t rtc_write(int32_t fd, const void *buf, int32_t nbytes)
         return -1;
     }
 
-    //write new frequency to RTC Register A
-    cli();
-    outb(0x8A, 0x70);                   //set index to register A, disable NMI
-    char prev = inb(0x71);              //get initial value of register A
-    outb(0x8A, 0x70);                   //reset index to A
-    outb(((prev & 0xF0) | rate), 0x71); //write only our rate to A. Note, rate is the bottom 4 bits.
-    sti();
-
+    freqs[running_shell] = freq[0];
     return 0;
 }
 
@@ -124,5 +130,3 @@ int32_t rtc_close(int32_t fd)
 {
     return 0;
 }
-
-

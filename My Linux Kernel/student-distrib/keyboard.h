@@ -1,9 +1,14 @@
-#ifndef keyboard
-#define keyboard
+// // #ifndef keyboard
+// // #define keyboard
 
-void initialize_keyboard();
-int handle_input(char *kbuf);
-void clear_buffers(char *kbuf);
-void clear_cur_buffer();
+// // char kbuf[127] = {'\0'};
+// // int enter_flag = 0;
+// void initialize_keyboard();
+// void handle_input();
+// void clear_buffers();
+// void clear_cur_buffer();
 
-#endif
+// extern char kbuf[127];
+// extern int enter_flag;
+
+// // #endif

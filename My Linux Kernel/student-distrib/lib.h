@@ -6,6 +6,9 @@
 #define _LIB_H
 
 #include "types.h"
+#include "system_calls.h"
+
+void update_vidmem(int shell_num);
 
 int32_t printf(int8_t *format, ...);
 void putc(uint8_t c);
@@ -15,6 +18,7 @@ int8_t *strrev(int8_t *s);
 uint32_t strlen(const int8_t *s);
 void clear(void);
 void test_interrupts(void);
+void display_col(char fill, int col, int cnt);
 
 void *memset(void *s, int32_t c, uint32_t n);
 void *memset_word(void *s, int32_t c, uint32_t n);
@@ -38,6 +42,13 @@ void set_screen_x(int x);
 void set_screen_y(int y);
 void scroll(void);
 void update_cursor();
+uint32_t get_random(uint32_t limit);
+void random_seed();
+void clear_no_cursor(void);
+
+volatile unsigned long long int rand_state;
+int colourful_flag;
+
 /* Port read functions */
 /* Inb reads a byte and returns its value as a zero-extended 32-bit
  * unsigned int */

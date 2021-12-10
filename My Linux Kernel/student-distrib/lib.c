@@ -7,10 +7,44 @@
 #define NUM_COLS 80
 #define NUM_ROWS 25
 #define ATTRIB 0x6
-
+#define KB_4 4096 //bytes in 4KB
 static int screen_x;
 static int screen_y;
 static char *video_mem = (char *)VIDEO;
+int curr_shell = 0;
+int terminal_col[3] = {0x6, 0xA, 0x7}; //4-red 5-purple 6-orange 7-white 8-grey 9-blue(dark) 10-green 11-blue(light) 12-red/pink 13-magenta 14-yellow 15-white
+
+int colour; //byte 0 is the value's colour, byte 1 is background
+
+//fill - char filler, col - number of column (), cnt - how many rows to fill (from bottom)
+void display_col(char fill, int col, int cnt)
+{
+    int temp_shell = curr_shell;
+    int i;
+    for (i = 0; i < cnt; i++)
+    {
+        // while(curr_shell != temp_shell){
+
+        // }
+        int mem_addr = (video_mem + 0x2 * col) + (0xa0 * i);
+        memcpy((void *)mem_addr, &fill, 1);
+    }
+}
+
+/*
+    Function: Update_vidmem
+    Description: changes vidmem based on current shell open
+    inputs: shell_num
+    outputs: none
+    Side_effects: updates the vidmem address so that if current
+    process isnt on current terminal it doesnt update vidmem 
+
+*/
+void update_vidmem(int shell_num)
+{
+    curr_shell = shell_num - 1;
+    video_mem = (char*)(VIDEO + (KB_4 * shell_num));
+}
 /* 
     Function: update_cursor
     Description: puts the cursor to the new location of next char
@@ -20,8 +54,8 @@ static char *video_mem = (char *)VIDEO;
 */
 void update_cursor()
 {
-    uint16_t new_location = (screen_y * NUM_COLS) + screen_x;     // location offset for memory
-    *(uint8_t *)(video_mem + ((new_location) << 1) + 1) = ATTRIB; //reset attrib in case it was set to zero by scroll
+    uint16_t new_location = (screen_y * NUM_COLS) + screen_x; // location offset for memory
+    *(uint8_t *)(video_mem + ((new_location) << 1) + 1) = terminal_col[curr_shell];   //reset attrib in case it was set to zero by scroll
     outb(0x0F, 0x3D4);
     outb((uint8_t)(new_location & 0xFF), 0x3D5);
     outb(0x0E, 0x3D4);
@@ -38,9 +72,19 @@ void clear(void)
     for (i = 0; i < NUM_ROWS * NUM_COLS; i++)
     {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
-        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+        *(uint8_t *)(video_mem + (i << 1) + 1) = terminal_col[curr_shell];
     }
     move_top_left();
+}
+
+void clear_no_cursor(void)
+{
+    int32_t i;
+    for (i = 0; i < NUM_ROWS * NUM_COLS; i++)
+    {
+        *(uint8_t *)(video_mem + (i << 1)) = ' ';
+        *(uint8_t *)(video_mem + (i << 1) + 1) = terminal_col[curr_shell];
+    }
 }
 
 /* 
@@ -53,7 +97,7 @@ void clear(void)
 void move_top_left(void)
 {
     screen_x = 0;
-    screen_y = 0;
+    screen_y= 0;
     update_cursor();
 }
 
@@ -274,33 +318,64 @@ int32_t puts(int8_t *s)
  *  Function: Output a character to the console */
 void putc(uint8_t c)
 {
+    cli();
     if (c == '\n' || c == '\r')
     {
         screen_y++;
         screen_x = 0;
+        if (screen_y >= NUM_ROWS)
+        {
+            scroll(); // TODO: look into this
+            move_bottom_left();
+        }
     }
     else
     {
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+        //randomise char colour
+        if (colourful_flag)
+        {
+            int i;
+            colour = get_random(4);
+            for (i = 0; i < 10; i++)
+            {
+                if ((colour < 2) || (colour == 15))
+                {
+                    colour = get_random(4);
+                }
+            }
+        }
+        else
+        {
+            //colour = ATTRIB; //default (orange)
+            colour = terminal_col[curr_shell];
+        }
+
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y+ screen_x) << 1)) = c;
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = colour;
         screen_x++;
         // screen_x %= NUM_COLS;
         // screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
 
-        if(screen_x >= NUM_COLS) {
+        if (screen_x >= NUM_COLS)
+        {
             screen_x = 0;
             screen_y++;
         }
 
-        if(screen_y >= NUM_ROWS) {
-            scroll();   // TODO: look into this
-            screen_y = NUM_ROWS - 1;
-            screen_x = 0;
+        if (screen_y >= NUM_ROWS)
+        {
+            scroll(); // TODO: look into this
+            move_bottom_left();
         }
     }
-
-    update_cursor();
+    if(displayed_terminal == running_shell){
+        update_cursor();
+    }
+    
+    sti();
+    
 }
+
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
  * Inputs: uint32_t value = number to convert
@@ -542,8 +617,8 @@ void scroll(void)
 {
     int32_t line_size = 160;              //size of line in bytes (160 = 80*2 (2 is attrib))
     int32_t cut_size = 4000 - line_size;  //3840 total bytes of vid memory (80*25*2)
-    int32_t new_line = VIDEO + line_size; //starting line to copy (skip first)
-    int32_t end_line = VIDEO + cut_size;  // last line to be filled with emptyness
+    int32_t new_line = (int32_t)video_mem + line_size; //starting line to copy (skip first)
+    int32_t end_line = (int32_t)video_mem + cut_size;  // last line to be filled with emptyness
     int32_t *newl = (int32_t *)new_line;
     int32_t *endl = (int32_t *)end_line;
 
@@ -632,4 +707,51 @@ void test_interrupts(void)
     {
         video_mem[i << 1]++;
     }
+}
+
+/*      
+ *      get_random
+ * Inputs:          limit - the number of bits set to random, this results in a random
+ *                  being always limited by (2^limit -1)                   
+ * Return Value:    32bit-long integer with limit number of bits set to random values
+ * Function:        create a random number consisting of consecutive new bits using  
+ *                  Linear Feedback Shift Register method of random number generation.
+ *                  A total of (2^64 -1) iterations is needed to go back to the initial 
+ *                  state, which will practically never happen. 
+ */
+uint32_t get_random(uint32_t limit)
+{
+    //check if limit is valid
+    if (limit < 1 || limit > 64)
+    {
+        return -1;
+    }
+
+    int i;
+    unsigned long long bit;
+    uint32_t out_bits = 0;
+
+    for (i = 0; i < limit; i++)
+    {
+        //taps at 64,63,61,60 to find a random bit
+        bit = (rand_state ^ (rand_state >> 59) ^ (rand_state >> 60) ^ (rand_state >> 62) ^ (rand_state >> 63)) & 1;
+        //shift random state register right once and add a new bit to the left
+        rand_state = (rand_state >> 1) | (bit << 63);
+        //add a new bit to the output value
+        out_bits = out_bits | (bit << i);
+    }
+
+    return out_bits;
+}
+
+/* 
+ *      random_seed
+ * Inputs:          none
+ * Return Value:    none
+ * Function:        initialise the random state to fist and last bits as 1
+ */
+void random_seed()
+{
+    unsigned long long one = 1;
+    rand_state = (one << 63) | 1;
 }

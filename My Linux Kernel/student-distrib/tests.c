@@ -2,10 +2,10 @@
 #include "x86_desc.h"
 #include "lib.h"
 #include "rtc.h"
+#include "pit.h"
 #include "file_system.h"
 #include "file_system_driver.h"
 #include "terminal.h"
-#include "keyboard.h"
 
 #define PASS 1
 #define FAIL 0
@@ -80,7 +80,59 @@ int idt_divide_by_zero_test()
 	b = 1;
 	return a / (b - 1);
 }
+void vidmem_test()
+{
+	clear();
+	char filler = '0';
+	int rand, rand_list[80];
+	int i;
 
+	//generate initial random values
+	for (i = 0; i < NUM_COLUMNS; i++)
+	{
+		rand = get_random(4);
+		rand_list[i] = rand;
+		display_col(filler, i, rand);
+	}
+
+	//wait
+	for (i = 0; i < 1; i++)
+	{
+		get_tick();
+	}
+
+	bubble_sort(rand_list, 81);
+
+	clear();
+}
+
+void bubble_sort(int a[], int n)
+{
+	char filler = '0';
+	int i = 0, j = 0, tmp, m;
+	for (i = 0; i < n; i++)
+	{ // loop n times - 1 per element
+		for (j = 0; j < n - i - 1; j++)
+		{ // last i elements are sorted already
+			if (a[j] > a[j + 1])
+			{ // swap if order is broken
+				tmp = a[j];
+				a[j] = a[j + 1];
+				a[j + 1] = tmp;
+			}
+			clear();
+			for (m = 0; m < NUM_COLUMNS; m++)
+			{
+				display_col(filler, m, a[m]);
+			}
+
+			for (i = 0; i < 1; i++)
+			{
+				get_tick();
+			}
+		}
+	}
+}
 // /* Checkpoint 2 tests */
 // void test_rtc()
 // {

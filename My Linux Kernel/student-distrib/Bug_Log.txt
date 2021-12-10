@@ -1,27 +1,27 @@
 MP 3.1 Bug Log
 ---------------
 
-1.) 
+1) 
     Error: Keyboard sending same char 
     Duration: 1-2 Hours
     Solution: Reading value from wrong port, initially thought we needed to read from PIC port but actually needed to read from 0x60
 
-2.) 
+2) 
     Error: Keyboard unable to send multiple charachters
     Duration: 1-2 Hours
     Solution: Same as above
 
-3.)
+3)
     Error: Keyboard printing random 'c' charachter in between typed charachters
     Duration: 20-30 min
     Solution: Key codes being received that were out of bounds of char array; prevent processor from reading these in
 
-4.) 
+4) 
     Error: Protection fault when typing multiple keys simultaneously 
     Duration: Unsolved
     Suspected Solution: RTC issue
 
-5.)
+5)
     Error: RTC crashing kernel
     Duration: 1-2 Hours
     Solution: Send_EOI implemented incorrectly
@@ -30,27 +30,152 @@ MP 3.1 Bug Log
 MP 3.2 Bug Log
 ---------------
 
-1.)
+1)
     Bug:		After paging is initialised nothing gets printed on the screen
     Origin:		Mistakingly shofting a Page Table Entry base address right by 12 bits
     Solution:	Remove the unnessesary shift
     Time:		2 hours
 
-2.) 
+2) 
     Bug:		Receiving page fault once RTC interrupt is received while in rtc_read
     Origin:		Missing assembly linkage
     Solution:	Added the needed assmbly code, specifically to push and pop registers
     Time:		2 hours
 
-3.)
+3)
     Bug:		Line doesn't wrap around and continues on the same line after running out of space
     Origin:		Not implemented
     Solution:	Added a code to go to a new line after 80 characters per line
     Time:		1 hour
 
-4.)
+4)
     Bug:		Page Fault when using movemem to move video memory
     Origin:		Using an incorrect variable for destination, which was below 0x8B000, resulting 
 		        in a page fault
     Solution:	Redefine a variable and change its type to match the input argument for more robustness
     Time:		30 min
+
+
+MP 3.3 Bug Log
+---------------
+1)
+    Bug:		Page Fault on starting the shell
+    Origin:		Not setting up new page correctly
+    Solution:	Change the extra bits to correct value 0x87
+    Time:		30 minutes
+
+2)
+    Bug:		Protection Fault on starting the shell
+    Origin:		Process halts when it shouldn't
+    Solution:	Jump table change
+    Time:		1 hour
+
+3)
+    Bug:		The first letter of files is not being displayed
+    Origin:		PUTC wasn't processing \n correctly
+    Solution:	Fix it 
+    Time:		2 hours
+
+4)
+    Bug:		Page Fault when typing hello
+    Origin:		File read wouldn't clean the buffer, so it was overflowing
+    Solution:	Emtpy the buffer on clean
+    Time:		Half a night
+
+5)
+    Bug:		Reading instead of writing
+    Origin:		Incorrect offset, off by 1
+    Solution:	Offset the jump table
+    Time:		20 minutes
+
+6)
+    Bug:		TSS somthing
+    Origin:		Weren't assigning the kernel adress and the kernel priveledge to next context
+    Solution:	Do the above^
+    Time:		1 hour
+
+7)
+    Bug:		Pingpong running at a wrong rate
+    Origin:		Using wrong parameter in rtc_write
+    Solution:	Instead of using buf, ready frequency from nbytes
+    Time:		10 minutes
+
+
+
+
+MP 3.4 Bug Log
+---------------
+1)
+    Bug:		Page Fault when running fish	
+    Origin:		Mitake in allocating a page table
+    Solution:	Change the physical address from 128 to 258MB
+    Time:		30 min
+
+2)     
+    Bug:		Fish image is crooked and running over shell text
+    Origin:		Faulty file system (not navigating through open files correctly)
+    Solution:	Fix file system
+    Time:		5 hours
+
+3)
+    Bug:		Page fault when closing shell after opening 3 shells
+    Origin:		Forgot to populate the process holder
+    Solution:	Copy paste 1 line
+    Time:		30 min
+    
+4)
+    Bug:		The second test of test 6 in syserr fails
+    Origin:		Not checking for pointer in protected range
+    Solution:	Add test condition for under 8MB
+    Time:		15 min
+
+5)
+    Bug:		page faults in 3rd recursive shell when running user programs
+    Origin:		incorrectly adding flag for shell to pcb
+    Solution:	when recursive shell is run, set flag for running process in pcb
+    Time:		20 minutes
+
+6)
+    Bug:		could not use global var to keep track of arg
+    Origin:		not storing arg in pcb when execute was run
+    Solution:	add arg attribute to pcb and store arg in pcb, then refer to it when getarg is called
+    Time:		10 minutes
+
+
+MP 3.5 Bug Log
+---------------
+1)
+    Bug:		Bootlooping when launching a new shell
+    Origin:		Not storing correct esp after initialising all shells
+    Solution:	Add storing all the needed variables to switch
+    Time:		2 hours
+
+2)
+    Bug:		Trying to close extra shells (running in existing ones) doesn't work as expected
+    Origin:		Incorrect parent process id
+    Solution:	Add a structure that keeps track of properties
+    Time:		3 hours
+
+3)
+    Bug:		Fish continues to run on the screen after switching terminals
+    Origin:		Incorrect video memory mapping
+    Solution:	Add a functions that remaps paging pages
+    Time:		1.5 hours
+
+4)
+    Bug:		PIT interrupting inconsistently 
+    Origin:		Setting the frequency incorrectly (the frequency was too high)
+    Solution:	Use a document shared on 391 discord to set frequency correctly
+    Time:		30 minutes
+
+5)
+    Bug:		Cursor twitches and switches colour
+    Origin:		Not having cli, sti, and not disabling irq appropriatly 
+    Solution:	Add the functions mentioned above
+    Time:		30 minutes
+
+6)
+    Bug:		Page fault on the second time running ls
+    Origin:		Parent process gets clobbered
+    Solution:	Update parent process accordingly
+    Time:		15 minutes

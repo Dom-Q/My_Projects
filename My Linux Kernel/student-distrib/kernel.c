@@ -9,10 +9,11 @@
 #include "debug.h"
 #include "tests.h"
 #include "idt_init.h"
-#include "keyboard.h"
+
 #include "terminal.h"
 #include "rtc.h"
 #include "paging.h"
+#include "pit.h"
 // #include "file_system.h"
 #include "file_system_driver.h"
 
@@ -26,7 +27,7 @@
    pointed by ADDR. */
 void entry(unsigned long magic, unsigned long addr)
 {
-
+    
     multiboot_info_t *mbi;
 
     /* Clear the screen. */
@@ -152,7 +153,9 @@ void entry(unsigned long magic, unsigned long addr)
         tss.esp0 = 0x800000;
         ltr(KERNEL_TSS);
     }
+    cli();
     clear();
+    
     /* Init paging */
     paging_init();
     /* Init the PIC */
@@ -162,23 +165,32 @@ void entry(unsigned long magic, unsigned long addr)
     // test_file_driver();
     // print_filenames();
     // test_file_read();
-
+    
+    running_shell = 0;
     init_rtc();
+    init_idt();
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
-    init_idt(); //initialize the idt
+     //initialize the idt
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
      * without showing you any output */
-    initialize_kbuffer();
-    initialize_keyboard();
+    // initialize_kbuffer();
     
+    initialize_keyboard();
 
-    //printf("Enabling Interrupts\n");
+    //extras
+    random_seed();
+    terminal_init();
+     // initialize the terminal
+
+   
+    // uint8_t shell_func[] = "shell0";
+    init_pit();
     sti();
-    do_execute("shell");
+    // do_execute(shell_func);
 
 #ifdef RUN_TESTS
     /* Run tests */
@@ -189,5 +201,3 @@ void entry(unsigned long magic, unsigned long addr)
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile(".1: hlt; jmp .1;");
 }
-
-

@@ -1,3 +1,9 @@
+#ifndef _EXCEPTIONS_H
+#define _EXCEPTIONS_H
+
+#include "lib.h"
+#include "system_calls.h"
+
 /* EXCEPTION FUNCTIONS */
 void division_by_0();
 void single_step_interrupt();
@@ -21,3 +27,6 @@ void machine_check();
 void simd_floating_point_exception();
 void virtualization_exception();
 void control_protection_exception();
+
+#endif
+

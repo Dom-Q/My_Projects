@@ -6,6 +6,7 @@
 
 #include "exceptions.h"
 
+// Exception Handlers
 extern void division_by_0_handler(void);
 extern void single_step_interrupt_handler(void);
 extern void non_maskable_interrupt_handler(void);

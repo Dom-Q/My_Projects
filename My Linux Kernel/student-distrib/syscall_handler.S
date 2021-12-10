@@ -7,7 +7,7 @@ ret_val: .long 0x0
 
 # System call jump table
 JUMPTABLE:
-    .long do_halt, do_execute, do_read, do_write, do_open, do_close
+    .long do_halt, do_execute, do_read, do_write, do_open, do_close, do_getargs, do_vidmap
 
 # Dispather
 # eax - call number
@@ -15,7 +15,6 @@ JUMPTABLE:
 # ecx - arg2
 # edx - arg3
 syscall_handler:
-    pushfl
     pushal
 
     # check command validity
@@ -44,11 +43,10 @@ INVALID_CMD:
     # Restore caller regs
 FIN:
     popal
-    popfl
-
+    
     # Restore ret val into eax
     movl ret_val, %eax
     
-    leave
-    ret
+    # Iret  (setup by int call)
+    iret
 

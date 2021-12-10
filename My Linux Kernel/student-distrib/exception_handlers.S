@@ -10,7 +10,6 @@
 
 # assembly code that pushes all registers and flags to stack, then pops them
 # after calling the appropriate c function
-
 division_by_0_handler:
     cli
 	pushal 

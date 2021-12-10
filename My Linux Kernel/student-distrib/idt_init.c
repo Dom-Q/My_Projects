@@ -67,8 +67,9 @@ void init_idt()
     //fill in interupt handler offset for all intrupts currently handled
     SET_IDT_ENTRY(idt[40], RTC_handler);
     SET_IDT_ENTRY(idt[33], keyboard_handler);
+    SET_IDT_ENTRY(idt[32], PIT_handler);
 
     // System Calls
-
+    // Soft interrupts at 0x80
     SET_IDT_ENTRY(idt[128], syscall_handler);
 }

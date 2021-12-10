@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "interrupt_handlers.h": "c",
+        "system_calls.h": "c"
+    }
+}

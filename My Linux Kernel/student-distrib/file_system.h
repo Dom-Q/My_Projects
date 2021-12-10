@@ -1,5 +1,7 @@
 #ifndef _FILE_SYSTEM_H
 #define _FILE_SYSTEM_H
+
+#include "system_calls.h"
 #include "lib.h"
 
 #define FILENAME_SIZE 32
@@ -46,8 +48,8 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 i_node_t* get_inode_base(superblock* sb_base);
 data_block_t* get_dblock_base(superblock* sb_base);
 
-// Test functions
-void print_filenames();
-void test_file_read();
+// // Test functions
+// void print_filenames();
+// void test_file_read();
 
 #endif
