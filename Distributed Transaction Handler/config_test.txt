@@ -1,0 +1,4 @@
+3
+node1 sp22-cs425-g15-01.cs.illinois.edu 1234
+node2 sp22-cs425-g15-02.cs.illinois.edu 1234
+node3 linux-ssh-08.ews.illinois.edu 1234
