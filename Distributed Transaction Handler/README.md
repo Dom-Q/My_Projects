@@ -8,7 +8,7 @@ Running
 
 Commands
   
-•	DEPOSIT <alphabetical account name> <numerical amount>
+•	DEPOSIT alphabetical account name numerical amount
   
   
-• TRANSFER <account name> -> <account name>
+• TRANSFER account name -> account name
