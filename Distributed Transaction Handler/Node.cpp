@@ -43,69 +43,7 @@ void Node::init_priority(){
     priority_num = std::stod(id) / ( (int)id.size()*10 );
 }
 
-
-// void Node::connect_all(std::unordered_map<std::string, std::string> M){
-//     std::unordered_map<std::string, std::string>::iterator I = M.begin();
-//     while(I != M.end()){
-//         if(remote_fds.count(I->first)){
-//             I++;
-//             continue;
-//         }
-//         std::cout << "C\n";
-//         // Socket and host structs
-//         struct sockaddr_in host_addr;
-//         struct addrinfo hints;
-//         struct addrinfo* addr_res;
-//         int new_fd;
-
-//         // Create and fill socket
-//         new_fd = socket(AF_INET, SOCK_STREAM, 0);
-//         std::cout<< new_fd << "\n";
-//         if(new_fd == -1){
-//             std::cerr << "Failed to create socket.\n";
-//             continue;
-//         }
-//         memset(&host_addr, '\0', sizeof(host_addr));
-
-//         // Get host data
-//         char hostname[256];
-//         memset(hostname, '\0', 256);
-//         I->first.copy(hostname, I->first.size(), 0);
-        
-//         // Assign and validate socket address data
-//         hints.ai_family = AF_INET;
-//         hints.ai_socktype = SOCK_STREAM;
-//         hints.ai_protocol = 0;
-//         if(getaddrinfo(hostname, I->second.c_str(), &hints, &addr_res)){
-//             std::cerr << "Unable to allocate socket for connecting to port " << I->first << "\n";
-//             I++;
-//             close(new_fd);
-//             continue;
-//         }
-        
-//         host_addr = *((sockaddr_in*)addr_res->ai_addr);
-
-//         if(!remote_fds.count(I->first)){
-//             std::cerr << "F.\n";
-//             if(connect(new_fd, (sockaddr*)&host_addr, sizeof(host_addr)) < 0){
-//                 close(new_fd);
-//                 std::cerr << "Couldn't connect to host " << I->first << "\n";
-                
-//                 I++;
-//                 continue;
-//             }
-//             std::cerr << "Ffff.\n";
-//             num_connections++;
-//             remote_fds[I->first] = new_fd;
-//             I++;
-//         }
-//         else{
-//             close(new_fd);
-//             I++;
-//         }
-//     }
-// }
-
+// Network Setup
 void Node::connect_all(std::unordered_map<std::string, std::string> M){
     std::unordered_map<std::string, std::string>::iterator I = M.begin();
     std::unordered_set<std::string> sent;
@@ -197,6 +135,7 @@ void Node::connect_all(std::unordered_map<std::string, std::string> M){
     }
 }
 
+// Distributed System Code
 // Communicate on a socket - listen for and process incoming messages
 void Node::communicate(std::string client){
     // Buffer
