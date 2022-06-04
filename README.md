@@ -3,6 +3,15 @@ Personal Projects :
 -------------------
 -> Linux-style Kernel
   - Fully functional OS complete with filesystem, paging and virtual memory, context switching, scheduling, system calls, exceptions, and interrupts.
+ 
+-> Distributed Transaction Hanlder
+  - Distributed charded servers capable of handling concurrent transactions from multiple clients whilei maintaining ACID properties
+
+-> RISC-V Pipelined Processor
+  - 5-Stage pipelined processor for the RISC-V ISA complete with L1/L2 data & instruction cache, prefecting, branch prediction, forwarding and hazard detection
+
+-> Total Order Multicast
+  - Replicated servers capable of handling transactions all in the same order
 
 -> Air Traffic Graph
   - Graph Data Structure that contains data on all of the world's airports, airlines, and flight routes. The program can return any of the data based on user input and also can draw any airport or flight route on the map projection provided. All data was gathered from OpenFlight. 
