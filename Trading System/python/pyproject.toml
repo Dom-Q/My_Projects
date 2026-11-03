@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trading-system"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+core = ["confluent-kafka", "protobuf"]
+data = ["databento", "alpaca-py", "pandas", "pyarrow"]
+research = ["scikit-learn", "matplotlib", "jupyter"]
+dev = ["pytest", "ruff"]
+
+# There is no Python package yet. An explicit empty list lets the editable
+# install succeed anyway. When you create your first package folder, put its
+# name here, for example: packages = ["trading_system"]
+[tool.setuptools]
+packages = []

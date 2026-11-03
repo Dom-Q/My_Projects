@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+cpp/build/
+generated/
+*.egg-info/
+
+# market data and secrets
+data/*
+!data/.gitkeep
+.env
+*.dbn
+*.dbn.zst
+notes/
