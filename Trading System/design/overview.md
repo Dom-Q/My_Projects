@@ -4,6 +4,8 @@
 
 Build a personal trading system as a learning project. The first target is a working prototype that I understand. Profit is not a goal yet.
 
+Scope: build the whole system end to end for one stock first. Add more stocks only after that works. The design keys everything by symbol, so adding stocks later is mostly configuration.
+
 What I want to learn:
 - Kafka streaming.
 - Order book design and use, with L3 data (defined in `data.md`).
@@ -33,8 +35,8 @@ The two modes meet at one point: the TopOfBook and Trade messages. Everything af
 
 | Service | Job |
 |---|---|
-| replay_producer | Reads Databento files and publishes order events (optional, used in a later stage). |
-| book_builder | Runs the C++ order book on order events and publishes top-of-book and trade messages. |
+| replay_producer | Reads Databento files and publishes L3 events (optional, used in a later stage). |
+| book_builder | Runs the C++ order book on L3 events (every action: Add, Cancel, Modify, Clear, Trade, Fill, None) and publishes top-of-book and trade messages. |
 | quote_adapter | Reads Alpaca's live quotes and trades and publishes the same top-of-book and trade messages. |
 | feature_builder | Turns top-of-book and trade messages into numbers the model uses (the features). |
 | model_service | Runs the model on the features and publishes a signal (long, short, or flat). |
@@ -47,7 +49,9 @@ The two modes meet at one point: the TopOfBook and Trade messages. Everything af
 ## Language split
 
 - The order book is C++.
-- Everything else starts in Python, because the Databento and Alpaca libraries are Python-first.
+- Everything else starts in Python, for two separate reasons:
+  - The data services (`quote_adapter`, and the replay code that reads Databento files) use the vendors' official Python libraries, which are their main, best-documented ones. Databento also has official C++ and Rust libraries.
+  - Research and model training use Python's data and machine learning tools (pandas, scikit-learn). That work happens offline, in scripts and notebooks. `model_service` only loads the trained model and runs it on features it reads from Kafka.
 - Services talk through protobuf messages, so any service can be rewritten in another language later without changing the others. The `.proto` files live in one shared `proto/` directory, and both C++ and Python generate their code from it.
 - Other ways C++ and Python meet: a pybind11 binding (a way to call C++ from Python) for tests and notebooks, and Parquet files (a column-based file format) for training data.
 

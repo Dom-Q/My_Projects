@@ -4,19 +4,19 @@ This is a design for the C++ order book library. It is a starting point, not a d
 
 ## Purpose
 
-Take a stream of L3 order events for one stock, keep the current book, and report the top of book. Later, answer deeper questions such as how many shares are queued ahead of a given order.
+Take a stream of L3 events for one stock, keep the current book, and report the top of book. An L3 event is any single record from the feed, whatever its action: Add, Cancel, Modify, Clear, Trade, Fill, or None. The book reads all of them. Some change the book and some do not (see "What each action does"). Later, answer deeper questions such as how many shares are queued ahead of a given order.
 
 ## Rules for the library
 
 - It is a pure library: no Kafka, no protobuf, no file or network access. A service converts messages into plain C++ events at its edge and converts the results back.
-- There is one book per stock. A book manager receives events and passes each to the right book, creating books as new stocks appear.
+- There is one book per stock. The first version handles one stock, so it needs just one book. Later, for several stocks, a book manager receives events and passes each to the right book, creating books as new stocks appear.
 - Each book is used by one thread only. Kafka already keeps each stock's events in order, so no locks are needed.
 - Prices are 64-bit integers (one unit is 1e-9 dollars). Never use floating point for prices.
 - Processing an event must never throw an exception on bad input. Real feeds are messy, and starting mid-day produces cancels for orders the book never saw. Return a status, count the problem, and keep going.
 
-## Input: one order event
+## Input: one L3 event
 
-The fields are listed in `data.md`. The book needs: exchange timestamp, sequence, order id, price, size, action, side, flags.
+The fields are listed in `data.md`. Every action uses the same fields. The book needs: exchange timestamp, sequence, order id, price, size, action, side, flags.
 
 ## What each action does
 

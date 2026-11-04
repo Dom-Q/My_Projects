@@ -37,7 +37,7 @@ Names are working names. The first one may be renamed (see `overview.md`).
 
 | Message | Fields |
 |---|---|
-| MarketEvent (one order event) | symbol; sequence (per symbol, assigned when ingested, and a gap means data was lost); vendor sequence; exchange timestamp; ingest timestamp (computer clock, for debugging only); action; side; price; size; order id; flags; venue |
+| MarketEvent (one L3 event, any action) | symbol; sequence (per symbol, assigned when ingested, and a gap means data was lost); vendor sequence; exchange timestamp; ingest timestamp (computer clock, for debugging only); action; side; price; size; order id; flags; venue |
 | TopOfBook | symbol; exchange timestamp; sequence; bid price (0 = no bid); bid size; ask price (0 = no ask); ask size; source (L3-derived, Alpaca IEX, Alpaca combined) |
 | Trade | symbol; exchange timestamp; sequence; price; size; aggressor side (bid means the buyer started the trade, unspecified when unknown, since L1 feeds often omit it); source |
 | FeatureVector | symbol; exchange timestamp; as-of sequence (the last event applied); best bid; best ask; mid price; spread in basis points (1 basis point is 0.01%); L1 imbalance, which is (bid size − ask size) ÷ (bid size + ask size); signed volume over the last second (buys positive, sells negative); mid-price return over the last second |
@@ -56,6 +56,8 @@ Replay mode and live mode each get a complete, separate set of topics. A **topic
 Why separate sets, and not one topic with a type field: a replay run and a live run must never mix their messages, and with separate topics one can be deleted or re-run without touching the other.
 
 All topics use the symbol as the key.
+
+While the system handles one stock, every topic needs only one partition. All of its messages then stay in one order. Partitions only start to matter when there are several stocks.
 
 | Topic (after the prefix) | Message | Producer, then consumer |
 |---|---|---|
