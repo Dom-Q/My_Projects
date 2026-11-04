@@ -36,15 +36,15 @@ The two modes meet at one point: the TopOfBook and Trade messages. Everything af
 | Service | Job |
 |---|---|
 | replay_producer | Reads Databento files and publishes L3 events (optional, used in a later stage). |
-| book_builder | Runs the C++ order book on L3 events (every action: Add, Cancel, Modify, Clear, Trade, Fill, None) and publishes top-of-book and trade messages. |
+| order_book_service | Runs the C++ order book on L3 events (every action: Add, Cancel, Modify, Clear, Trade, Fill, None) and publishes top-of-book and trade messages. |
 | quote_adapter | Reads Alpaca's live quotes and trades and publishes the same top-of-book and trade messages. |
 | feature_builder | Turns top-of-book and trade messages into numbers the model uses (the features). |
 | model_service | Runs the model on the features and publishes a signal (long, short, or flat). |
 | risk_manager | Checks each signal against limits. Approved signals become orders. Rejected ones are logged. |
 | execution_gateway | Sends orders to the broker (or the simulated fill engine in replay mode) and publishes execution reports. |
-| position_tracker | Keeps the current position (shares held) and profit and loss per symbol, from the execution reports. |
+| portfolio_service | Keeps the current position (shares held) and profit and loss per symbol, from the execution reports. |
 
-`risk_manager` and `position_tracker` stay as single copies. A limit such as total exposure needs every symbol's position at once, so the work cannot be split by symbol.
+`risk_manager` and `portfolio_service` stay as single copies. A limit such as total exposure needs every symbol's position at once, so the work cannot be split by symbol.
 
 ## Language split
 
@@ -62,13 +62,15 @@ The two modes meet at one point: the TopOfBook and Trade messages. Everything af
 3. Add the pybind11 binding. Replay a Databento day through the book from Python. Compare the book's top of book with Databento's own top-of-book data (MBP-1) for the same period. This is the golden test: the book is right if the two agree.
 4. Add Kafka. A replay process runs the book and publishes top-of-book messages. Build features, model, signals, risk, simulated execution, and positions on top.
 5. Add the quote_adapter for Alpaca's live stream. Add Alpaca paper execution.
-6. Optional, for more Kafka and C++ practice: replay_producer, then Kafka, then a C++ book_builder. After that, AWS (MSK is Amazon's managed Kafka, S3 is Amazon's file storage, plus containers).
+6. Optional, for more Kafka and C++ practice: replay_producer, then Kafka, then a C++ order_book_service. After that, AWS (MSK is Amazon's managed Kafka, S3 is Amazon's file storage, plus containers).
 
 ## Open decisions (mine to make)
 
 - Names. The draft used `apply` for the main method and `Event` for the event type. Other candidates: `process_event`, `OrderEvent`, and `add_order`, `modify_order`, `cancel_order` for the helpers. A rename is cheap until the code exists.
 - When a cancel record's price or side disagrees with what the book stored, which one to trust. Leaning toward the stored copy plus a counter of mismatches.
 - Whether to implement Modify now, or only after real data shows it is needed.
+- Top-of-book and trade messages: two topics (`md.l1` and `md.trades`, the current draft) or one topic whose message holds either one (a protobuf `oneof`). Kafka does not keep order across two topics, so with two, `feature_builder` must buffer both and merge them by exchange timestamp. With one topic, the producer writes them in the order they happened, and every reader gets that order for free. Leaning toward one topic while there is one stock.
+  - Side note: Alpaca does not promise that quotes and trades arrive in timestamp order (see `data.md`). With one topic this can be fixed in one place: `quote_adapter` holds incoming messages for a short reorder window (for example 100 milliseconds), sorts them by exchange timestamp, then writes them. Still to decide: how long the window is (longer catches more late messages but adds delay), and what to do with a message that arrives after its window (drop it, or pass it through marked as late). Measure how often Alpaca's messages arrive out of order in stage 5 before choosing. Replay mode does not need this, because the Databento file is already in exchange order.
 
 ## Status
 

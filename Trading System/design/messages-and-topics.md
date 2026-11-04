@@ -57,19 +57,21 @@ Why separate sets, and not one topic with a type field: a replay run and a live 
 
 All topics use the symbol as the key.
 
+Leaning toward one topic for now: TopOfBook and Trade messages would share a single topic (for example `md.market_data`) through a wrapper message with a protobuf `oneof`, so they stay in the order they happened. The table below still shows the original two-topic draft (`md.l1` and `md.trades`). This is an open decision in `overview.md`.
+
 While the system handles one stock, every topic needs only one partition. All of its messages then stay in one order. Partitions only start to matter when there are several stocks.
 
 | Topic (after the prefix) | Message | Producer, then consumer |
 |---|---|---|
-| md.events | MarketEvent | replay_producer, then book_builder (replay only, optional) |
-| md.l1 | TopOfBook | book_builder (replay) or quote_adapter (live), then feature_builder |
+| md.events | MarketEvent | replay_producer, then order_book_service (replay only, optional) |
+| md.l1 | TopOfBook | order_book_service (replay) or quote_adapter (live), then feature_builder |
 | md.trades | Trade | the same producers, then feature_builder |
 | features | FeatureVector | feature_builder, then model_service |
 | signals | Signal | model_service, then risk_manager |
 | risk.rejects | RiskReject | risk_manager, then logs |
 | orders | OrderRequest | risk_manager, then execution_gateway |
-| executions | ExecutionReport | execution_gateway, then position_tracker and risk_manager |
-| positions | PositionSnapshot | position_tracker, then risk_manager |
+| executions | ExecutionReport | execution_gateway, then portfolio_service and risk_manager |
+| positions | PositionSnapshot | portfolio_service, then risk_manager |
 
 - `md` stands for market data, and `l1` for level 1.
 - `positions` is log-compacted: Kafka keeps only the latest message per key, so the topic works like a table of current positions. A restarting risk_manager reads it to recover.

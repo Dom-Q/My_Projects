@@ -57,6 +57,9 @@ This is what Databento's normalization page says. Verify it on real data.
 - The free plan gives real-time data from one exchange, IEX, which is about 4% of US stock volume. The IEX top of book is one exchange's quote, not the best price across the country.
 - The free plan allows 30 symbols on the live stream (the websocket), history since 2016, and no queries for the most recent 15 minutes.
 - Alpaca has no L2 or L3 data for stocks.
+- Alpaca's stock trade messages have no aggressor side (checked against Alpaca's real-time stock data documentation, November 2026). Their fields are symbol, trade id, exchange, price, size, conditions, timestamp, and tape. So the side of each trade must be inferred, for example with the quote rule: at or above the ask is a buy, at or below the bid is a sell.
+- Alpaca's documentation does not promise that quotes and trades arrive in timestamp order, and it says late trades can arrive after their minute has closed. Sort or check by the exchange timestamp, not by arrival order.
+- Databento's MBO Trade records do carry the aggressor side: `A` (sell aggressor), `B` (buy aggressor), or `N` (no side given).
 - The paid plan ($99 per month) adds data from all exchanges combined. I chose the free plan for now.
 - Alpaca's paper trading uses practice money. It tests the plumbing (order states, rejections, partial fills, reconciling positions), not profit.
 
