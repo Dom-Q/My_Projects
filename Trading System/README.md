@@ -24,7 +24,7 @@ Make targets: `cpp-build`, `cpp-test`, `py-install`, `py-test`, `proto` (generat
 1. Create a Databento account and an API key. New accounts get starter credits (check the current terms).
 2. Set up Python. Run everything inside Ubuntu (WSL), from this folder:
    ```
-   cd "/mnt/c/Users/domjq/src/My_Projects/My_Projects/Trading System"
+   cd "/mnt/c/Users/domjq/src/My_Projects/Trading System"
    make py-install
    echo 'export DATABENTO_API_KEY=your_key_here' >> ~/.bashrc
    source ~/.bashrc
