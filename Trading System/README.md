@@ -22,18 +22,19 @@ Make targets: `cpp-build`, `cpp-test`, `py-install`, `py-test`, `proto` (generat
 ## First steps: look at real data
 
 1. Create a Databento account and an API key. New accounts get starter credits (check the current terms).
-2. Set up Python:
+2. Set up Python. Run everything inside Ubuntu (WSL), from this folder:
    ```
-   python3 -m venv .venv
-   source .venv/bin/activate
-   pip install -r research/requirements.txt
-   export DATABENTO_API_KEY=your_key_here
+   cd "/mnt/c/Users/domjq/src/My_Projects/My_Projects/Trading System"
+   make py-install
+   echo 'export DATABENTO_API_KEY=your_key_here' >> ~/.bashrc
+   source ~/.bashrc
    ```
+   `make py-install` creates `python/.venv`, which includes `databento` and `pandas`. The research scripts use this same environment. Paths such as `python/.venv/bin/python` are relative, so they only work from this folder.
 3. Check the cost first. This downloads nothing:
    ```
-   python research/download_databento_sample.py --symbol AAPL --start 2026-10-26T13:30 --end 2026-10-26T13:35
+   python/.venv/bin/python research/download_databento_sample.py --symbols GOOGL --start 2026-10-26T13:30 --end 2026-10-26T13:35
    ```
-   Times are UTC. Pick a normal trading day and use a short window.
+   Times are UTC. Pick a normal trading day and use a short window. To type `python` instead of `python/.venv/bin/python`, run `source python/.venv/bin/activate` once per terminal.
 4. If the cost is acceptable, run the same command with `--download`.
 5. Open `research/explore_order_events.py` and run it one cell at a time. The questions at the bottom are yours to answer.
 

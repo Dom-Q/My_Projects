@@ -17,7 +17,10 @@ L1 is enough for a basic strategy. L3 is for learning how a book works and for r
 - Start with one ticker and a few minutes of data.
 - Prices are 64-bit integers where one unit is 1e-9 dollars (one billionth). Example: $187.42 is 187,420,000,000.
 - Records identify a stock by a numeric `instrument_id`, not by its ticker.
-- A historical MBO file includes a synthetic snapshot of the book at the start of each UTC day. A request that starts later in the day has no snapshot, so expect cancels for orders whose add is not in the file.
+- Databento's MBO schema page says historical MBO data has a synthetic snapshot of the book at the start of each UTC day: a Clear, then an Add for every resting order, with the snapshot flag set. The page names no exceptions, and the Python library warns when an MBO request does not start at UTC midnight. Not yet confirmed in a downloaded Nasdaq file: check that the first records are a Clear and flagged Adds.
+- So requests start at 00:00 UTC. In winter that is 7:00 pm New York time on the previous day, so the file begins with the end of the previous day's after-hours trading. Apply every event from the snapshot on, and ignore the book's output from before the day being studied.
+- A request that starts later in the day has no snapshot, so expect cancels and fills for orders whose Add is not in the file.
+- Nasdaq hours, New York time: pre-market 4:00 am to 9:30 am, regular session 9:30 am to 4:00 pm, after-hours 4:00 pm to 8:00 pm. A few thousand records fall outside 3:00 am to 8:00 pm, cause not yet checked.
 
 ## What an L3 event looks like (Databento MBO)
 

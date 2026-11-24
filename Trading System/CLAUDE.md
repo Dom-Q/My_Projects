@@ -31,7 +31,8 @@ Stage 1: read real Databento L3 data and learn what the events look like, before
 
 - `research/download_databento_sample.py` estimates the cost of a small slice, then downloads it with `--download`.
 - `research/explore_order_events.py` is a cell-by-cell script. It lists questions to answer from the data. I answer them. Do not answer them for me.
-- `research/requirements.txt` holds what the research scripts need. The research folder runs on its own, separate from `python/`.
+- The research scripts run with `python/.venv` (created by `make py-install`), which already has `databento` and `pandas`. Do not create a separate environment for them. Run them from this folder, for example `python/.venv/bin/python research/download_databento_sample.py ...`.
+- The Databento API key is in the `DATABENTO_API_KEY` environment variable, set in Ubuntu's `~/.bashrc`. `db.Historical()` reads it automatically.
 
 Scope: build the whole system end to end for one stock first. Add more stocks later.
 
@@ -63,4 +64,5 @@ The Python protobuf library installed by pip is version 7.x, and Ubuntu's protoc
 - Done: the setup. The `cpp/`, `python/`, and `proto/` folders hold build and dependency files only. Every make target above has run successfully.
 - Written: the two research scripts and the design documents.
 - Not verified: the research scripts have not run against real Databento data. The message designs have never been compiled with protoc. The order book has no code yet.
-- Next: stage 1. Create a Databento account and API key, check the cost of a small slice with `research/download_databento_sample.py`, download it, and answer the questions in `research/explore_order_events.py`.
+- Done: Databento account and API key.
+- Next: stage 1. Check the cost of a small slice with `research/download_databento_sample.py`, download it, and answer the questions in `research/explore_order_events.py`.

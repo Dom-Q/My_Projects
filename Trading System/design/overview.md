@@ -53,13 +53,13 @@ The two modes meet at one point: the TopOfBook and Trade messages. Everything af
   - The data services (`quote_adapter`, and the replay code that reads Databento files) use the vendors' official Python libraries, which are their main, best-documented ones. Databento also has official C++ and Rust libraries.
   - Research and model training use Python's data and machine learning tools (pandas, scikit-learn). That work happens offline, in scripts and notebooks. `model_service` only loads the trained model and runs it on features it reads from Kafka.
 - Services talk through protobuf messages, so any service can be rewritten in another language later without changing the others. The `.proto` files live in one shared `proto/` directory, and both C++ and Python generate their code from it.
-- Other ways C++ and Python meet: a pybind11 binding (a way to call C++ from Python) for tests and notebooks, and Parquet files (a column-based file format) for training data.
+- Other ways C++ and Python meet: Parquet files (a column-based file format) for training data. A pybind11 binding (a way to call C++ from Python): Python reads the Databento files and feeds the book, then analyzes and plots its output.
 
 ## Stages
 
 1. Look at real Databento data. This is the current stage.
 2. Write the order book library in C++, test-first, with no Kafka.
-3. Add the pybind11 binding. Replay a Databento day through the book from Python. Compare the book's top of book with Databento's own top-of-book data (MBP-1) for the same period. This is the golden test: the book is right if the two agree.
+3. Add the pybind11 binding, so Python can import the C++ book as a module. Read a Databento day in Python, feed each event to the book, and record its top of book. Compare the book's top of book with Databento's own top-of-book data (MBP-1) for the same period. This is the golden test: the book is right if the two agree.
 4. Add Kafka. A replay process runs the book and publishes top-of-book messages. Build features, model, signals, risk, simulated execution, and positions on top.
 5. Add the quote_adapter for Alpaca's live stream. Add Alpaca paper execution.
 6. Optional, for more Kafka and C++ practice: replay_producer, then Kafka, then a C++ order_book_service. After that, AWS (MSK is Amazon's managed Kafka, S3 is Amazon's file storage, plus containers).

@@ -25,16 +25,21 @@ store = db.DBNStore.from_file(path)
 # Prices come back as floats in dollars. Pass price_type="fixed" to see the raw
 # integers instead, where one unit is 1e-9 dollars.
 df = store.to_df()
+print(df.dtypes)
+print(type(store))
 print(len(df), "records")
-print(df.head(50))
+print(df.head(10))
 
 # %% Which actions appear, and how often?
 print(df["action"].value_counts())
 
+# Note %% marks a cell.
 # %% [markdown]
 # Questions to answer from the data. Write your own cells for each one.
 #
 # 1. Do Cancel rows have a price and a side filled in?
+
+# %%
 # 2. Pick one order_id and print every row for it, in order. Does its life look
 #    like Add ... Cancel? Does it ever have more than two rows?
 # 3. For one order, how does a Cancel's size compare with the Add's size?
