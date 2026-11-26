@@ -1,4 +1,3 @@
-# %% [markdown]
 # Look at a downloaded Databento MBO file.
 #
 # Run this one cell at a time (VS Code or Jupyter), from the project root, or run
@@ -9,8 +8,16 @@ from pathlib import Path
 
 import databento as db
 
+# Find the project folder (the one holding data/ and research/), starting from
+# wherever this runs, so it works from the project root or from research/.
+project_root = next(
+    (folder for folder in [Path.cwd(), *Path.cwd().parents]
+     if (folder / "data").is_dir() and (folder / "research").is_dir()),
+    Path.cwd(),
+)
+
 # Picks the newest file in data/.
-files = sorted(Path("data").glob("*.dbn.zst"), key=lambda p: p.stat().st_mtime)
+files = sorted((project_root / "data").glob("*.dbn.zst"), key=lambda p: p.stat().st_mtime)
 if not files:
     raise SystemExit(
         "No .dbn.zst file in data/. Run this from the project root, and run "
@@ -34,7 +41,7 @@ print(df.head(10))
 print(df["action"].value_counts())
 
 # Note %% marks a cell.
-# %% [markdown]
+# %%
 # Questions to answer from the data. Write your own cells for each one.
 #
 # 1. Do Cancel rows have a price and a side filled in?
