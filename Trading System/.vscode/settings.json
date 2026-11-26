@@ -1,0 +1,7 @@
+{
+    "cmake.sourceDirectory": "${workspaceFolder}/cpp",
+    "cmake.buildDirectory": "${workspaceFolder}/cpp/build",
+    "cmake.configureOnOpen": false,
+    "python.defaultInterpreterPath": "${workspaceFolder}/python/.venv/bin/python",
+    "jupyter.notebookFileRoot": "${workspaceFolder}"
+}
